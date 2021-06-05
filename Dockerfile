@@ -19,6 +19,7 @@ RUN install2.r --error \
     devtools \
     remotes \
     rlang \
+    immunarch \
     plotly \
     heatmaply \
     pheatmap \
