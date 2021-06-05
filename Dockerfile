@@ -20,6 +20,8 @@ RUN install2.r --error \
     remotes \
     rlang \
     immunarch \
+    shazam \
+    alakazam \
     plotly \
     heatmaply \
     pheatmap \
