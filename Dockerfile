@@ -20,9 +20,6 @@ RUN install2.r --error \
     devtools \
     remotes \
     rlang \
-    immunarch \
-    shazam \
-    alakazam \
     plotly \
     heatmaply \
     pheatmap \
@@ -33,6 +30,10 @@ RUN install2.r --error \
     readxl
 
 RUN R -e "devtools::install_github('kassambara/ggpubr')"
+
+RUN R -e "BiocManager::install('immunarch')" && \
+    R -e "BiocManager::install('shazam')" && \
+    R -e "BiocManager::install( alakazam')"
 
 RUN cd \tmp && \
     wget "https://github.com/milaboratory/mixcr/releases/download/v3.0.13/mixcr-3.0.13.zip" && \
