@@ -38,6 +38,7 @@ RUN R -e "BiocManager::install('immunarch')" && \
 
 RUN cd \tmp && \
     wget "https://github.com/milaboratory/mixcr/releases/download/v3.0.13/mixcr-3.0.13.zip" && \
-    unzip mixcr-3.0.13.zip -q -d /home/rstudio/mixcr
+    unzip mixcr-3.0.13.zip -d /home/rstudio/mixcr
+ENV PATH="/home/rstudio/mixcr/mixcr-3.0.13:${PATH}"
 
 CMD ["/init"]
