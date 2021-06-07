@@ -8,6 +8,7 @@ RUN sudo apt-get update && \
     sudo apt-get install -y libcairo2-dev && \
     sudo apt-get install -y libxml2-dev && \
     sudo apt-get install -y libtbb2 && \
+    sudo apt-get install -y libglpk-dev && \
     sudo apt-get install -y phylip
 
 RUN pip3 install plotly==4.14.3 && \
