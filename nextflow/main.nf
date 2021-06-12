@@ -77,3 +77,22 @@ process mergeChainedMiXCR {
     mixcr exportClones clones.clna ${sample}_clones.txt
     """
 } 
+
+
+
+/*
+ *        Add sample name to repertoire tables so that it can be tracked back later, after merged
+ */
+
+process addPathToTable {
+
+    input:
+        tuple sample, "clones.txt" from repertoire_tables
+
+    output:
+        file "tagged_clones.txt)" into tagged_repertoire_table
+
+    """
+    R --slave -e 'tb <- read.csv("clones.txt", stringsAsFactors=FALSE); tb["Sample_code"] <- ${sample}; write.csv(tb, tagged_clones.txt)'
+    """
+} 
