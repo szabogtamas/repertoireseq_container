@@ -28,3 +28,30 @@ process rnaBulkTrimmomaticPE {
     """
 } 
 
+
+/*
+        *Use MiXCR to reconstruct BCR repertoire
+*/
+
+process reconstructBrepertoireMiXCR {
+
+    publishDir '../tables/MiXCR_reports', pattern: '*.txt', mode: 'copy'
+
+    input:
+        val species_alias from params.species_alias
+        tuple sample, "${sample}_trim_1.fastq", "${sample}_trim_2.fastq" from trimmed_fastqs
+
+    output:
+        file "${sample}_repertoire.txt" into repertoire_reports
+
+    """
+    mixcr analyze shotgun\
+    --only-productive\
+    --starting-material rna\
+    --receptor-type bcr\
+    --species $species_alias\
+    --report ${sample}_repertoire.txt\
+    ${sample}_trim_1.fastq ${sample}_trim_2.fastq\
+    $sample
+    """
+}  
