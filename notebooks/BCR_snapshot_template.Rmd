@@ -1,0 +1,31 @@
+---
+title: ! params$report_title
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: united
+params:
+  report_title: "B-cell repertoire analysis template"
+  report_author: "Anonymus"
+  tagged_repertoire: "../test_data/merged_repertoire.csv"
+  sample_metadata: "../test_data/samples_meta.csv"
+---
+
+## Settings
+
+```{r}
+# Import packages
+
+library(tidyr)
+library(ggplot2)
+library(immunarch)
+library(pheatmap)
+```
+
+```{r}
+# Rearrange repertoire table
+
+merged_repertoire <- read.csv(params$tagged_repertoire)
+head(merged_repertoire)
+```
