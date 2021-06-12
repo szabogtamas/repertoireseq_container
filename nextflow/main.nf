@@ -1,6 +1,7 @@
 /*
-        *Trim Paired End reads with Trimmomatic
-*/
+ *        Trim Paired End reads with Trimmomatic
+ */
+
 Channel
     .from([params.forward_fastqs, params.reverse_fastqs, params.sample_ids].transpose())
     .map{[params.input_folder + '/' + it[0], params.input_folder + '/' + it[1], it[2]]}
@@ -30,10 +31,10 @@ process rnaBulkTrimmomaticPE {
 
 
 /*
-        *Use MiXCR to reconstruct BCR repertoire
-*/
+ *        Use MiXCR to reconstruct BCR repertoire
+ */
 
-process reconstructBrepertoireMiXCR {
+process reconstructBCRepertoireMiXCR {
 
     publishDir '../tables/MiXCR_reports', pattern: '*.txt', mode: 'copy'
 
@@ -43,6 +44,7 @@ process reconstructBrepertoireMiXCR {
 
     output:
         file "${sample}_repertoire.txt" into repertoire_reports
+        tuple sample, ${sample}_clones.clna into repertoire_clna
 
     """
     mixcr analyze shotgun\
@@ -54,4 +56,24 @@ process reconstructBrepertoireMiXCR {
     ${sample}_trim_1.fastq ${sample}_trim_2.fastq\
     $sample
     """
-}  
+} 
+
+
+/*
+ *        Merge reconstructed clontype chains from MiXCR to a format friendlier to Immunach
+ */
+
+process mergeChainedMiXCR {
+
+    publishDir '../tables/MiXCR_reports', pattern: '*.txt', mode: 'copy'
+
+    input:
+        tuple sample, "clones.clna" from repertoire_clna
+
+    output:
+        file "${sample}_clones.txt" into repertoire_tables
+
+    """
+    mixcr exportClones clones.clna ${sample}_clones.txt
+    """
+} 
