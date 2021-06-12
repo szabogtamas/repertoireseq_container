@@ -18,6 +18,7 @@ params:
 # Import packages
 
 library(tidyr)
+library(purrr)
 library(ggplot2)
 library(immunarch)
 library(pheatmap)
@@ -27,5 +28,12 @@ library(pheatmap)
 # Rearrange repertoire table
 
 merged_repertoire <- read.csv(params$tagged_repertoire)
-head(merged_repertoire)
+repertoire_folder <- "reconstructed_bcrs"
+if (!dir.exists(repertoire_folder)) dir.create(repertoire_folder)
+
+preprocessed_reptabs <- merged_repertoire %>%
+  group_split(Sample_code) %>%
+  setNames(., .$Sample_code) %>%
+  select(-Sample_code) %>%
+  imap(~write.csv(.x, paste(.y, "txt", sep=".")))
 ```
