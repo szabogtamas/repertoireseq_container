@@ -5,7 +5,7 @@
 Channel
     .from([params.forward_fastqs, params.reverse_fastqs, params.sample_ids].transpose())
     .map{[params.input_folder + '/' + it[0], params.input_folder + '/' + it[1], it[2]]}
-    .set{insamples}
+    .set{ insamples }
 
 process rnaBulkTrimmomaticPE {
 
@@ -101,6 +101,10 @@ process addPathToTable {
  *        Generate report using an Rmd template
  */
 
+tagged_repertoire_table
+    .collectFile(name: 'merged_repertoire.txt', keepHeader: true, newLine: true)
+    .set{ tagged_repertoire }
+
 process generateReport {
 
     publishDir '../tables/MiXCR_reports', pattern: '*.txt', mode: 'copy'
@@ -117,6 +121,6 @@ process generateReport {
         file reperoire_report.html into final_report
 
     """
-    R --slave -e 'rmarkdown::render("${report_template}", "${report_filename}", params = list(clonotype_tab=${sample_metadata}, clonotype_tab=${sample_metadata}'
+    R --slave -e 'rmarkdown::render("${report_template}", "${report_filename}", params = list(clonotype_tab=${clonotype_tab}, sample_metadata=${sample_metadata}'
     """
 } 
