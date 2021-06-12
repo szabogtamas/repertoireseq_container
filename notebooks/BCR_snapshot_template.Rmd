@@ -44,3 +44,10 @@ preprocessed_reptabs <- merged_repertoire %>%
 immdata <- repLoad(repertoire_folder)
 unlink(repertoire_folder, recursive=TRUE, force=TRUE)
 ```
+
+```{r}
+# Add metadata
+
+raw_metadata <- read.csv(params$sample_metadata)
+immdata$meta <- left_join(immdata$meta, raw_metadata, by="Sample")
+```
