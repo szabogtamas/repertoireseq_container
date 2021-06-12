@@ -67,3 +67,35 @@ for (s in paste0("R", seq(1:16))){
 dfs <- do.call("rbind", dfs)
 head(dfs)
 ```
+```
+
+```{r}
+sampleDict <- sampleInfo$group
+names(sampleDict) <- sampleInfo$sample
+lambda_clone_presence <- dfs %>%
+  .[,c("sample", "CDR3.aa", "Proportion")] %>%
+  count(CDR3.aa, sample) %>%
+  tibble::add_column(th=ifelse(.$n > 0, 1, 0)) %>%
+  tibble::add_column(group=sampleDict[.$sample]) %>%
+  .[,c("group", "CDR3.aa", "th")] %>%
+  count(CDR3.aa, group) %>%
+  pivot_wider(names_from=CDR3.aa, values_from=n, values_fill=0) %>%
+  as.data.frame() %>%
+  `rownames<-`(.[,1]) %>%
+  .[,-1]  %>%
+  t() %>%
+  .[order(rowSums(.[,-1]), decreasing=TRUE),]
+head(lambda_clone_presence)
+```
+
+```{r}
+lambda_clone_portions <- dfs %>%
+  .[,c("sample", "CDR3.aa", "Proportion")] %>%
+  pivot_wider(names_from=CDR3.aa, values_from=Proportion, values_fn=list(Proportion=sum), values_fill=0) %>%
+  as.data.frame() %>%
+  `rownames<-`(.[,1]) %>%
+  .[,-1]  %>%
+  t() %>%
+  .[order(rowSums(.[,-1]), decreasing=TRUE),]
+head(lambda_clone_portions)
+```
