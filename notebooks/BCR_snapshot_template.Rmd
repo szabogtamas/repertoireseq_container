@@ -37,3 +37,10 @@ preprocessed_reptabs <- merged_repertoire %>%
   select(-Sample_code) %>%
   imap(~write.csv(.x, paste(.y, "txt", sep=".")))
 ```
+
+```{r}
+# Parse files with Immunarch
+
+immdata <- repLoad(repertoire_folder)
+unlink(repertoire_folder, recursive=TRUE, force=TRUE)
+```
