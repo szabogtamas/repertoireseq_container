@@ -36,7 +36,7 @@ process rnaBulkTrimmomaticPE {
 
 process reconstructBCRepertoireMiXCR {
 
-    publishDir '../tables/MiXCR_reports', pattern: '*.txt', mode: 'copy'
+    publishDir params.clonotype_dir, pattern: '*.txt', mode: 'copy'
 
     input:
         val species_alias from params.species_alias
@@ -65,7 +65,7 @@ process reconstructBCRepertoireMiXCR {
 
 process mergeChainedMiXCR {
 
-    publishDir '../tables/MiXCR_reports', pattern: '*.txt', mode: 'copy'
+    publishDir params.clonotype_dir, pattern: '*.txt', mode: 'copy'
 
     input:
         tuple sample, "clones.clna" from repertoire_clna
@@ -107,7 +107,7 @@ tagged_repertoire_table
 
 process generateReport {
 
-    publishDir '../tables/MiXCR_reports', pattern: '*.txt', mode: 'copy'
+    publishDir params.report_dir, pattern: '*.html', mode: 'copy'
 
     input:
         val report_template from params.report_template
