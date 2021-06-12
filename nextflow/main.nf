@@ -79,7 +79,6 @@ process mergeChainedMiXCR {
 } 
 
 
-
 /*
  *        Add sample name to repertoire tables so that it can be tracked back later, after merged
  */
@@ -94,5 +93,30 @@ process addPathToTable {
 
     """
     R --slave -e 'tb <- read.csv("clones.txt", stringsAsFactors=FALSE); tb["Sample_code"] <- ${sample}; write.csv(tb, tagged_clones.txt)'
+    """
+} 
+
+
+/*
+ *        Generate report using an Rmd template
+ */
+
+process generateReport {
+
+    publishDir '../tables/MiXCR_reports', pattern: '*.txt', mode: 'copy'
+
+    input:
+        val report_template from params.report_template
+        val report_filename from params.report_filename
+        val report_title from params.report_title
+        val report_author from params.report_author
+        file clonotype_tab from tagged_repertoire
+        file sample_meta from params.sample_metadata
+
+    output:
+        file reperoire_report.html into final_report
+
+    """
+    R --slave -e 'rmarkdown::render("${report_template}", "${report_filename}", params = list(clonotype_tab=${sample_metadata}, clonotype_tab=${sample_metadata}'
     """
 } 
