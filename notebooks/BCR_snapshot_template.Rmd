@@ -1,5 +1,5 @@
 ---
-title: ! params$report_title
+title: !r params$report_title
 output:
   html_document:
     toc: true
