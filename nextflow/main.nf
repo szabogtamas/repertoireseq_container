@@ -1,3 +1,12 @@
+#!/usr/bin/env nextflow
+
+////////////////////////////////////////////////////////////////////////////
+//                                                                        //
+//  Take a quick look at BCR repertoire from bulk RNAseq                  //
+//                                                                        //
+////////////////////////////////////////////////////////////////////////////
+
+
 /*
  *        Trim Paired End reads with Trimmomatic
  */
