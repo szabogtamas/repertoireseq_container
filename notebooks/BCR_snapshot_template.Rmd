@@ -37,7 +37,10 @@ params$tagged_repertoire %>%
     fn <- x$Sample_code %>%
       unique() %>%
       file.path(repertoire_folder, .)
-    write.table(select(x, -Sample_code), paste(fn, "txt", sep="."), sep="\t", row.names=FALSE)
+    write.table(
+      select(x, -Sample_code), paste(fn, "txt", sep="."),
+      sep="\t", row.names=FALSE, quote = FALSE
+    )
   })
 ```
 
@@ -52,7 +55,7 @@ unlink(repertoire_folder, recursive=TRUE, force=TRUE)
 # Add metadata
 
 raw_metadata <- read.csv(params$sample_metadata)
-immdata$meta <- left_join(immdata$meta, raw_metadata, by="Sample")
+immdata$meta <- left_join(immdata$meta, raw_metadata, by=c(Sample="SampleID"))
 ```
 
 ## Clonotype frequencies
