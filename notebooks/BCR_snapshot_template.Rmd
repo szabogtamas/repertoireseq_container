@@ -64,9 +64,29 @@ immdata$meta <- left_join(immdata$meta, raw_metadata, by=c(Sample="SampleID"))
 clonotype_freq_tab <- immdata$data %>%
   imap(~mutate(.x, SampleID = .y)) %>%
   bind_rows() %>%
-  left_join(immdata$meta, by="SampleID")
+  left_join(immdata$meta, by="SampleID") %>%
+  mutate(
+    logFreq = log(Proportion)
+  )
 
 head(clonotype_freq_tab)
+```
+
+```{r}
+clonotype_freq_tab %>%
+  ggplot(aes(x=logFreq)) +
+    geom_density(aes(colour=group)) +
+    theme(axis.text.x = element_text(angle=30, hjust=1)) +
+    labs(title="Distribution of frequencies for Ig Lambda clonotypes")
+```
+
+```{r fig.widht=16, fig.height=4}
+clonotype_freq_tab %>%
+  filter(Proportion > 0.003) %>%
+  ggplot(aes(CDR3.aa, Proportion)) +
+    geom_boxplot(aes(colour=group)) +
+    theme(axis.text.x = element_text(angle=30, hjust=1)) +
+    labs(title="Most abundant Ig Lambda clonotypes")
 ```
 
 ```{r}
@@ -98,19 +118,4 @@ lambda_clone_portions <- dfs %>%
   t() %>%
   .[order(rowSums(.[,-1]), decreasing=TRUE),]
 head(lambda_clone_portions)
-```
-
-```{r}
-dfs$logFreq <- log(dfs$Proportion)
-ggplot(dfs, aes(x=logFreq)) +
-  geom_density(aes(colour=group)) +
-  theme(axis.text.x = element_text(angle=30, hjust=1)) +
-  labs(title="Distribution of frequencies for Ig Lambda clonotypes")
-```
-
-```{r fig.widht=16, fig.height=4}
-ggplot(dfs[dfs$Proportion > 0.003,], aes(CDR3.aa, Proportion)) +
-  geom_boxplot(aes(colour=group)) +
-  theme(axis.text.x = element_text(angle=30, hjust=1)) +
-  labs(title="Most abundant Ig Lambda clonotypes")
 ```
