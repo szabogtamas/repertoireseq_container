@@ -57,9 +57,10 @@ RUN install2.r --error \
     --deps TRUE \
     readxl
 
-RUN R -e "BiocManager::install('immunarch')" && \
-    R -e "BiocManager::install('shazam')" && \
+RUN R -e "BiocManager::install('shazam')" && \
     R -e "BiocManager::install('alakazam')"
+
+RUN R -e "devtools::install_github('immunomind/immunarch')"
 
 RUN cd \tmp && \
     wget "https://github.com/milaboratory/mixcr/releases/download/v3.0.13/mixcr-3.0.13.zip" && \
