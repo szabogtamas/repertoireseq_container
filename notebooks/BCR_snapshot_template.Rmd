@@ -25,17 +25,20 @@ library(pheatmap)
 ```
 
 ```{r}
-# Rearrange repertoire table
+# Rearrange repertoire table to match Immunarch expectations
 
-merged_repertoire <- read.csv(params$tagged_repertoire)
 repertoire_folder <- "reconstructed_bcrs"
 if (!dir.exists(repertoire_folder)) dir.create(repertoire_folder)
 
-preprocessed_reptabs <- merged_repertoire %>%
+params$tagged_repertoire %>%
+  read.csv(stringsAsFactors = FALSE) %>%
   group_split(Sample_code) %>%
-  setNames(., .$Sample_code) %>%
-  select(-Sample_code) %>%
-  imap(~write.csv(.x, paste(.y, "txt", sep=".")))
+  walk(function(x) {
+    fn <- x$Sample_code %>%
+      unique() %>%
+      file.path(repertoire_folder, .)
+    write.table(select(x, -Sample_code), paste(fn, "txt", sep="."), sep="\t", row.names=FALSE)
+  })
 ```
 
 ```{r}
