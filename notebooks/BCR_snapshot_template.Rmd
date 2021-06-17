@@ -61,18 +61,12 @@ immdata$meta <- left_join(immdata$meta, raw_metadata, by=c(Sample="SampleID"))
 ## Clonotype frequencies
 
 ```{r}
-chain <- "IGL"
-dfs <- list()
-for (s in paste0("R", seq(1:16))){
-  df <-  as.data.frame(immdata$data[[s]])
-  df <- df[substr(df$V.name, 1, 3) == chain,]
-  df$group <- sampleInfo[s, "group"]
-  df$sample <- sampleInfo[s, "sample"]
-  dfs[[s]] <- df
-}
-dfs <- do.call("rbind", dfs)
-head(dfs)
-```
+clonotype_freq_tab <- immdata$data %>%
+  imap(~mutate(.x, SampleID = .y)) %>%
+  bind_rows() %>%
+  left_join(immdata$meta, by="SampleID")
+
+head(clonotype_freq_tab)
 ```
 
 ```{r}
