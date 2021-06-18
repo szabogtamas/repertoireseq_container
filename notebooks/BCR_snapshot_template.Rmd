@@ -341,3 +341,23 @@ p <- differential_clono_tab %>%
 show_fig(p)
 ```
 
+```{r message=FALSE, warning=FALSE}
+top_clones <- differential_clono_tab %>%
+  filter(!is.na(FC)) %>%
+  group_by(Comparison) %>%
+  group_split() %>%
+  map(~arrange(.x, p.value, FC)) %>%
+  map(head, 15) %>%
+  bind_rows() %>%
+  left_join(select(clonotype_freq_tab, CDR3.nt, CDR3.aa), by="CDR3.aa") %>%
+  distinct(CDR3.nt, CDR3.aa)
+
+show_top_clone_proportions(
+  clonotype_freq_tab, top_clones,
+  "Clonotypes differentailly present in conditions"
+)
+```
+
+
+
+
