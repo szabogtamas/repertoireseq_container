@@ -123,6 +123,11 @@ clonotype_freq_tab <- immdata$data %>%
 
 ### Clones recovered
 
+```{r message=FALSE, warning=FALSE}
+exp_vol <- repExplore(immdata$data, .method = "volume")
+vis(exp_vol, .by = c("Condition"), .meta = immdata$meta)
+```
+
 ```{r}
 clonotype_summary <- clonotype_freq_tab %>%
   group_by(Sample, Condition, receptorChain) %>%
@@ -163,7 +168,23 @@ p <- clonotype_summary %>%
 show_fig(p)
 ```
 
-### Distribution of frequencies
+### Spectratypes
+
+```{r}
+exp_len <- repExplore(immdata$data, .method = "len", .col = "aa")
+vis(exp_len, .by = "Condition", .meta = immdata$meta) +
+  scale_fill_npg()
+```
+
+
+### Distribution of proportions
+
+```{r}
+exp_cnt <- repExplore(immdata$data, .method = "count")
+vis(exp_cnt) +
+  scale_color_npg()
+```
+
 
 ```{r}
 display_clonotype_proportion_distribution <- function(in_tab, plot_title, chain_name=NULL, n_conditions=N_CONDITION) {
