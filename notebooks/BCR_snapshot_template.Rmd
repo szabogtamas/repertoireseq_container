@@ -407,7 +407,15 @@ imm_overlap_mrs %>%
 ## Repertoire diversities
 
 ```{r}
+immdata$data %>%
+  repDiversity("chao1") %>%
+  vis()
+```
 
+```{r}
+immdata$data %>%
+  repDiversity("div") %>%
+  vis()
 ```
 
 ## Gene V usage
