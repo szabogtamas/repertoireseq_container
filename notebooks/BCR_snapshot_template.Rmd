@@ -263,6 +263,8 @@ display_top_abundant_clonotypes(clonotype_freq_tab, "Top IgL clonotypes", "IGL")
 
 ## Differential abundance of clonotypes
 
+### Top clones
+
 ```{r}
 wrap_wilcox_stats <- function(data, condition_1, condition_2, condition_col="Condition", valuecol="Proportion") {
   skip_to_next <- FALSE
@@ -321,6 +323,8 @@ differential_clono_tab %>%
   show_tab()
 ```
 
+### Overview of statistics
+
 ```{r}
 p <- differential_clono_tab %>%
   filter(!is.na(FC)) %>%
@@ -341,6 +345,8 @@ p <- differential_clono_tab %>%
 show_fig(p)
 ```
 
+### Most significant differences 
+
 ```{r message=FALSE, warning=FALSE}
 top_clones <- differential_clono_tab %>%
   filter(!is.na(FC)) %>%
@@ -358,6 +364,26 @@ show_top_clone_proportions(
 )
 ```
 
+## Repertoire overlap
 
+```{r}
 
+```
 
+## Repertoire diversities
+
+```{r}
+
+```
+
+## Gene V usage
+
+```{r}
+
+```
+
+## Clone lineages
+
+```{r}
+
+```
