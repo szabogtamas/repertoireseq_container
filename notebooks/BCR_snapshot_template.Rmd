@@ -261,5 +261,83 @@ display_top_abundant_clonotypes(clonotype_freq_tab, "Top IgK clonotypes", "IGK")
 display_top_abundant_clonotypes(clonotype_freq_tab, "Top IgL clonotypes", "IGL")
 ```
 
+## Differential abundance of clonotypes
 
+```{r}
+wrap_wilcox_stats <- function(data, condition_1, condition_2, condition_col="Condition", valuecol="Proportion") {
+  skip_to_next <- FALSE
+  data[[condition_col]] = as.character(data[[condition_col]] )
+  x_vec = unlist(data[data[[condition_col]] == condition_1, valuecol])
+  y_vec = unlist(data[data[[condition_col]] == condition_2, valuecol])
+  tryCatch(wilcox.test(x_vec, y_vec), error = function(e) { skip_to_next <<- TRUE })
+  if(skip_to_next) {
+    stat <- list(p.value=1)
+  } else {
+    stat <- wilcox.test(x_vec, y_vec)
+  }
+    data.frame(
+      Comparison = paste(condition_2, "vs.", condition_1, sep=" "),
+      CDR3.aa = unique(data$CDR3.aa),
+      Median_1 = median(y_vec, na.rm=TRUE),
+      Median_2 = median(x_vec, na.rm=TRUE),
+      FC = median(y_vec, na.rm=TRUE) / median(x_vec, na.rm=TRUE),
+      p.value = stat$p.value,
+      stringsAsFactors = FALSE
+    )
+}
+
+find_top_differential_clonotypes <- function(in_tab) {
+  
+  compared_conditions <- raw_metadata$Condition %>%
+    unique() %>%
+    gtools::combinations(N_CONDITION, 2, .) %>%
+    data.frame() %>%
+    setNames(c("condition_1", "condition_2"))
+  
+  proportion_tab <- in_tab %>%
+    group_by(Sample, CDR3.aa) %>%
+    mutate(Proportion = sum(Proportion)) %>%
+    distinct(Sample, Condition, CDR3.aa, Proportion) %>%
+    group_by(CDR3.aa) %>%
+    group_split() %>%
+    map(function(x) {
+      compared_conditions %>%
+        pmap(function(y, condition_1, condition_2){
+          wrap_wilcox_stats(x, condition_1, condition_2)
+        }) %>%
+        bind_rows()
+    }) %>%
+    bind_rows()
+  
+  proportion_tab
+    
+}
+
+differential_clono_tab <- find_top_differential_clonotypes(clonotype_freq_tab)
+
+differential_clono_tab %>%
+  filter(!is.na(FC)) %>%
+  arrange(p.value) %>%
+  show_tab()
+```
+
+```{r}
+p <- differential_clono_tab %>%
+  filter(!is.na(FC)) %>%
+  mutate(
+    Sign = ifelse(p.value < 0.05 & (FC > 2 | FC < 0.5), "Promising", "Noise"),
+    Sign = factor(Sign, levels=c("Promising", "Noise"))
+  ) %>%
+  ggplot(aes(x=log2(FC), y=-log10(p.value), color=Sign, label=CDR3.aa)) +
+  geom_point() +
+  facet_grid(Comparison ~ .) +
+  scale_color_npg() +
+  theme_bw() +
+  labs(
+    title="Volcano plot of clonotype differences",
+    x="log2(FoldChange)", y="-log10(p)", color=""
+  )
+
+show_fig(p)
+```
 
