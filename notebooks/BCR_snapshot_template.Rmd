@@ -388,7 +388,20 @@ show_top_clone_proportions(
 ## Repertoire overlap
 
 ```{r}
+imm_overlap_pb <- repOverlap(immdata$data, .method = "public", .verbose = F)
+vis(imm_overlap_pb)
+```
 
+
+```{r}
+imm_overlap_mrs <- repOverlap(immdata$data, .method = "morisita", .verbose = F)
+vis(imm_overlap_mrs)
+```
+
+```{r}
+imm_overlap_mrs %>%
+  repOverlapAnalysis("mds") %>%
+  vis()
 ```
 
 ## Repertoire diversities
