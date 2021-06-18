@@ -10,9 +10,12 @@ params:
   report_author: "Anonymus"
   tagged_repertoire: "../test_data/merged_repertoire.csv"
   sample_metadata: "../test_data/samples_meta.csv"
+  condition_column: "Label"
 ---
 
-## Settings
+## Setup
+
+### Initialize tools
 
 ```{r}
 # Import packages
@@ -20,9 +23,52 @@ params:
 library(tidyr)
 library(purrr)
 library(ggplot2)
-library(immunarch)
+library(ggsci)
+library(plotly)
 library(pheatmap)
+library(DT)
+library(immunarch)
 ```
+
+```{r}
+# Define function to show a nice table with download option
+
+ALLOW_INTERACTION <- knitr::is_html_output()
+
+show_tab <- function(tab, interaction=ALLOW_INTERACTION){
+  if (interaction) {
+    datatable(
+      tab, extensions = "Buttons",
+      options = list(
+        scrollX="400px",
+        dom = "Bfrtip",
+        buttons = list(
+          list(
+            extend = "collection",
+            buttons = c("csv", "excel"),
+            text = "Download"
+          )
+        )
+      )
+    )
+  } else {
+    tab
+  }
+}
+
+show_fig <- function(p, interaction=ALLOW_INTERACTION) {
+  if (interaction) {
+    ggplotly(p)
+  } else {
+    p
+  }
+}
+
+color_names <- pal_npg()(9)
+```
+
+
+### Parse and preprocess data
 
 ```{r}
 # Rearrange repertoire table to match Immunarch expectations
@@ -55,67 +101,165 @@ unlink(repertoire_folder, recursive=TRUE, force=TRUE)
 # Add metadata
 
 raw_metadata <- read.csv(params$sample_metadata)
+raw_metadata$Condition <- raw_metadata[[params$condition_column]]
 immdata$meta <- left_join(immdata$meta, raw_metadata, by=c(Sample="SampleID"))
+N_CONDITION <- length(unique(raw_metadata$Condition))
+```
+
+```{r}
+# Create long table for tidy operations
+
+clonotype_freq_tab <- immdata$data %>%
+  imap(~mutate(.x, Sample = .y)) %>%
+  bind_rows() %>%
+  left_join(immdata$meta, by="Sample") %>%
+  mutate(
+    logFreq = log(Proportion),
+    receptorChain = substr(V.name, 1, 3)
+  )
 ```
 
 ## Clonotype frequencies
 
+### Clones recovered
+
 ```{r}
-clonotype_freq_tab <- immdata$data %>%
-  imap(~mutate(.x, SampleID = .y)) %>%
-  bind_rows() %>%
-  left_join(immdata$meta, by="SampleID") %>%
-  mutate(
-    logFreq = log(Proportion)
+clonotype_summary <- clonotype_freq_tab %>%
+  group_by(Sample, Condition, receptorChain) %>%
+  summarise(
+    Proportion_in_Sample = sum(Proportion),
+    Mean_estimated_size  = mean(Proportion),
+    Number_of_Clonotypes = n()
   )
 
-head(clonotype_freq_tab)
+show_tab(clonotype_summary)
 ```
 
 ```{r}
-clonotype_freq_tab %>%
-  ggplot(aes(x=logFreq)) +
-    geom_density(aes(colour=group)) +
-    theme(axis.text.x = element_text(angle=30, hjust=1)) +
-    labs(title="Distribution of frequencies for Ig Lambda clonotypes")
-```
+p <- clonotype_summary %>%
+  ggplot(aes(x=Sample, y=Proportion_in_Sample, fill=receptorChain)) + 
+    geom_bar(position="stack", stat="identity") +
+    scale_fill_npg() +
+    theme_bw() +
+    theme(
+      axis.text.x = element_text(angle=30, vjust=0.5, hjust=1)
+    ) +
+    labs(title="Proportion of Ig chains in samples", x="", y="Proportion")
 
-```{r fig.widht=16, fig.height=4}
-clonotype_freq_tab %>%
-  filter(Proportion > 0.003) %>%
-  ggplot(aes(CDR3.aa, Proportion)) +
-    geom_boxplot(aes(colour=group)) +
-    theme(axis.text.x = element_text(angle=30, hjust=1)) +
-    labs(title="Most abundant Ig Lambda clonotypes")
+show_fig(p)
 ```
 
 ```{r}
-sampleDict <- sampleInfo$group
-names(sampleDict) <- sampleInfo$sample
-lambda_clone_presence <- dfs %>%
-  .[,c("sample", "CDR3.aa", "Proportion")] %>%
-  count(CDR3.aa, sample) %>%
-  tibble::add_column(th=ifelse(.$n > 0, 1, 0)) %>%
-  tibble::add_column(group=sampleDict[.$sample]) %>%
-  .[,c("group", "CDR3.aa", "th")] %>%
-  count(CDR3.aa, group) %>%
-  pivot_wider(names_from=CDR3.aa, values_from=n, values_fill=0) %>%
-  as.data.frame() %>%
-  `rownames<-`(.[,1]) %>%
-  .[,-1]  %>%
-  t() %>%
-  .[order(rowSums(.[,-1]), decreasing=TRUE),]
-head(lambda_clone_presence)
+p <- clonotype_summary %>%
+  ggplot(aes(x=Sample, y=Number_of_clonotypes, fill=receptorChain)) + 
+    geom_bar(position="stack", stat="identity") +
+    scale_fill_npg() +
+    theme_bw() +
+    theme(
+      axis.text.x = element_text(angle=30, vjust=0.5, hjust=1)
+    ) +
+    labs(title="Number of individual clonotypes", x="", y="Clonotype")
+
+show_fig(p)
+```
+
+### Distribution of frequencies
+
+```{r}
+display_clonotype_proportion_distribution <- function(in_tab, plot_title, chain_name=NULL, n_conditions=N_CONDITION) {
+  p <- in_tab %>%
+    filter(if(is.null(chain_name)) TRUE else receptorChain == !!chain_name) %>%
+    ggplot(aes(x=Proportion)) +
+      geom_density(aes(color=Condition)) +
+      scale_x_log10() +
+      scale_color_manual(values=rev(color_names[1:n_conditions])) +
+      theme_bw() +
+      labs(title=plot_title, x="Proportion", y="Density")
+  
+  show_fig(p)
+}
+
+display_clonotype_proportion_distribution(
+  clonotype_freq_tab, "Distribution of clonotype proportions"
+)
 ```
 
 ```{r}
-lambda_clone_portions <- dfs %>%
-  .[,c("sample", "CDR3.aa", "Proportion")] %>%
-  pivot_wider(names_from=CDR3.aa, values_from=Proportion, values_fn=list(Proportion=sum), values_fill=0) %>%
-  as.data.frame() %>%
-  `rownames<-`(.[,1]) %>%
-  .[,-1]  %>%
-  t() %>%
-  .[order(rowSums(.[,-1]), decreasing=TRUE),]
-head(lambda_clone_portions)
+display_clonotype_proportion_distribution(
+  clonotype_freq_tab, "Distribution of IgH clonotype proportions", "IGH"
+)
 ```
+
+```{r}
+display_clonotype_proportion_distribution(
+  clonotype_freq_tab, "Distribution of IgK clonotype proportions", "IGK"
+)
+```
+
+```{r}
+display_clonotype_proportion_distribution(
+  clonotype_freq_tab, "Distribution of IgL clonotype proportions", "IGL"
+)
+```
+
+### Most abundant clones
+
+```{r message=FALSE, warning=FALSE}
+find_top_abundant_clones <- function(in_tab, chain_name=NULL) {
+  in_tab %>%
+    filter(if(is.null(chain_name)) TRUE else receptorChain == !!chain_name) %>%
+    group_by(Condition, CDR3.nt) %>%
+    mutate(Proportion = mean(Proportion)) %>%
+    ungroup() %>%
+    arrange(desc(Proportion)) %>%
+    group_by(Condition) %>%
+    group_split() %>%
+    map(head, 30) %>%
+    bind_rows() %>%
+    distinct(CDR3.aa, CDR3.nt)
+}
+
+show_top_clone_proportions <- function(in_tab, top_clones, plot_title, chain_name=NULL) {
+  in_tab %>%
+    filter(if(is.null(chain_name)) TRUE else receptorChain == !!chain_name) %>%
+    filter(CDR3.nt %in% top_clones$CDR3.nt) %>%
+    select(Proportion, CDR3.aa, Condition) %>%
+    mutate(
+      CDR3.aa = factor(CDR3.aa, levels=unique(top_clones$CDR3.aa))
+    ) %>%
+    plot_ly(
+      x = ~CDR3.aa, y = ~Proportion, color = ~Condition, type = "box",
+      boxpoints = FALSE, width=1200, height=800,
+      colors=rev(color_names[1:N_CONDITION])
+    ) %>%
+    layout(
+      xaxis = list(title="", tickangle = 30, tickfont=list(size=12)),
+      yaxis = list(title="Proportion", tickfont=list(size=12)),
+      boxmode = "group",
+      legend = list(orientation="h", xanchor="center", x=0.5),
+      title = plot_title
+    )
+}
+
+display_top_abundant_clonotypes <- function(in_tab, title, chain_name=NULL) {
+  top_clones <- find_top_abundant_clones(in_tab, chain_name)
+  show_top_clone_proportions(in_tab, top_clones, title, chain_name)
+}
+
+display_top_abundant_clonotypes(clonotype_freq_tab, "Top overall clonotypes")
+```
+
+```{r message=FALSE, warning=FALSE}
+display_top_abundant_clonotypes(clonotype_freq_tab, "Top IgH clonotypes", "IGH")
+```
+
+```{r message=FALSE, warning=FALSE}
+display_top_abundant_clonotypes(clonotype_freq_tab, "Top IgK clonotypes", "IGK")
+```
+
+```{r message=FALSE, warning=FALSE}
+display_top_abundant_clonotypes(clonotype_freq_tab, "Top IgL clonotypes", "IGL")
+```
+
+
+
