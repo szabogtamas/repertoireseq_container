@@ -701,3 +701,120 @@ overall_gene_usage_tab %>%
     scale_color_manual(values=rev(color_names[1:N_CONDITION])) +
     ggtitle("Hierarchical clustering of samples based on JS scores")
 ```
+
+## Convergence
+
+### Overview
+
+```{r message=FALSE, warning=FALSE}
+p <- clonotype_freq_tab %>%
+  group_by(Condition, Sample, CDR3.aa) %>%
+  mutate(numConverged = n()) %>%
+  ungroup() %>%
+  ggplot(aes(x=numConverged, fill=Condition)) +
+    geom_histogram(position=position_dodge()) +
+    scale_fill_manual(values=rev(color_names[1:N_CONDITION])) +
+    theme_bw() +
+    labs(
+      title="Convergence of CDR3 regions as the number of nucleotide variants",
+      x="Number of nucleotide sequence variants for CDR3", y="Number of CDR3 (not normalized)")
+
+show_fig(p)
+```
+
+### Converged proportions
+
+```{r message=FALSE, warning=FALSE}
+p <- clonotype_freq_tab %>%
+  group_by(Condition, Sample, CDR3.aa) %>%
+  mutate(numConverged = n()) %>%
+  ungroup() %>%
+  mutate(Converged = ifelse(numConverged > 1, TRUE, FALSE)) %>%
+  group_by(Sample) %>%
+  mutate(Convergence = sum(Converged) / n()) %>%
+  ungroup() %>%
+  ggplot(aes(x=Condition, y=Convergence, color=Condition, label=Sample)) +
+    geom_boxplot(outlier.shape=NA) +
+    geom_point(position=position_dodge()) +
+    scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+    scale_color_manual(values=rev(color_names[1:N_CONDITION])) +
+    theme_bw() +
+    labs(
+      title="Convergence as percent of CDR3 regions in sample having more than 1 CDR3.nt variants",
+      x="", y="Percent of CDR3 convergent")
+
+show_fig(p)
+```
+
+```{r message=FALSE, warning=FALSE}
+p <- clonotype_freq_tab %>%
+  group_by(Condition, Sample, CDR3.aa) %>%
+  mutate(numConverged = n()) %>%
+  ungroup() %>%
+  mutate(Converged = ifelse(numConverged > 5, TRUE, FALSE)) %>%
+  group_by(Sample) %>%
+  mutate(Convergence = sum(Converged) / n()) %>%
+  ungroup() %>%
+  ggplot(aes(x=Condition, y=Convergence, color=Condition, label=Sample)) +
+    geom_boxplot(outlier.shape=NA) +
+    geom_point(position=position_dodge()) +
+    scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+    scale_color_manual(values=rev(color_names[1:N_CONDITION])) +
+    theme_bw() +
+    labs(
+      title="Convergence as percent of CDR3 regions in sample having more than 5 CDR3.nt variants",
+      x="", y="Percent of CDR3 convergent")
+
+show_fig(p)
+```
+
+### Convergent clone sizes
+
+```{r}
+p <- clonotype_freq_tab %>%
+  group_by(Condition, Sample, CDR3.aa) %>%
+  mutate(numConverged = n()) %>%
+  ungroup() %>%
+  ggplot(aes(x=numConverged, y=Proportion, color=Condition)) +
+    geom_density_2d() +
+    scale_fill_manual(values=rev(color_names[1:N_CONDITION])) +
+    theme_bw() +
+    labs(
+      title="Clonotype sizes as a function of convergence (density contour)",
+      x="Number of nucleotide sequence variants for CDR3", y="Clone size (proportion is sample)")
+
+show_fig(p)
+```
+
+```{r}
+p <- clonotype_freq_tab %>%
+  group_by(Condition, Sample, CDR3.aa) %>%
+  mutate(numConverged = n()) %>%
+  ungroup() %>%
+  mutate(
+    numConverged = case_when(
+      numConverged < 2 ~ "Sinlget",
+      numConverged == 2 ~ "Doublet",
+      numConverged == 3 ~ "Triplet",
+      numConverged < 8 ~ "Small expansion",
+      numConverged < 16 ~ "Expanded",
+      TRUE ~ "Strong expansion"
+    ),
+    numConverged = factor(
+      numConverged, levels = c(
+        "Sinlget", "Doublet", "Triplet", "Small expansion",
+        "Expanded", "Strong expansion"
+      )
+    )
+  ) %>%
+  ggplot(aes(x=Proportion, y=numConverged, fill=Condition)) +
+    geom_density_ridges(scale=1.1, alpha=0.6) +
+    scale_fill_manual(values=rev(color_names[1:N_CONDITION])) +
+    scale_x_log10() +
+    theme_bw() +
+    labs(
+      title="Clonotype sizes as a function of convergence",
+      x="Clone size (proportion is sample)", y="Number of nucleotide sequence variants for CDR3")
+
+show_fig(p)
+```
