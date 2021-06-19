@@ -695,6 +695,14 @@ overall_gene_usage_tab %>%
   ggtitle("K-means clustering after PCA of JS scores")
 ```
 
+```{r warning=FALSE}
+overall_gene_usage_tab %>%
+  geneUsageAnalysis("js+hclust", .verbose = F) %>%
+  vis(.plot = "clust") +
+    scale_color_manual(values=rev(color_names[1:N_CONDITION])) +
+    ggtitle("Hierarchical clustering of samples based on JS scores")
+```
+
 ## Clone lineages
 
 ```{r}
