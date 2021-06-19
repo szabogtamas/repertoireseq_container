@@ -24,6 +24,7 @@ library(tidyr)
 library(purrr)
 library(ggplot2)
 library(ggsci)
+library(ggridges)
 library(plotly)
 library(pheatmap)
 library(DT)
@@ -66,7 +67,6 @@ show_fig <- function(p, interaction=ALLOW_INTERACTION) {
 
 color_names <- pal_npg()(9)
 ```
-
 
 ### Parse and preprocess data
 
@@ -156,7 +156,7 @@ show_fig(p)
 
 ```{r}
 p <- clonotype_summary %>%
-  ggplot(aes(x=Sample, y=Number_of_clonotypes, fill=receptorChain)) + 
+  ggplot(aes(x=Sample, y=Number_of_Clonotypes, fill=receptorChain)) + 
     geom_bar(position="stack", stat="identity") +
     scale_fill_npg() +
     theme_bw() +
@@ -168,15 +168,6 @@ p <- clonotype_summary %>%
 show_fig(p)
 ```
 
-### Spectratypes
-
-```{r}
-exp_len <- repExplore(immdata$data, .method = "len", .col = "aa")
-vis(exp_len, .by = "Condition", .meta = immdata$meta) +
-  scale_fill_npg()
-```
-
-
 ### Distribution of proportions
 
 ```{r}
@@ -184,7 +175,6 @@ exp_cnt <- repExplore(immdata$data, .method = "count")
 vis(exp_cnt) +
   scale_color_npg()
 ```
-
 
 ```{r}
 display_clonotype_proportion_distribution <- function(in_tab, plot_title, chain_name=NULL, n_conditions=N_CONDITION) {
@@ -385,21 +375,72 @@ show_top_clone_proportions(
 )
 ```
 
+## Spectratypes
+
+### Overall spectratype
+
+```{r warning=FALSE}
+display_spectratype <- function(in_tab, plot_title, chain_name=NULL, n_conditions=N_CONDITION) {
+  p <- in_tab %>%
+    filter(if(is.null(chain_name)) TRUE else receptorChain == !!chain_name) %>%
+    mutate(
+      CDR3.len = nchar(CDR3.aa),
+      Sample = factor(Sample),
+      Sample = factor(Sample, levels=rev(levels(Sample)))
+    ) %>%
+    ggplot(aes(x=CDR3.len, y=Sample, fill=Condition)) +
+      geom_density_ridges(scale=1.1, alpha=0.7) +
+      scale_x_log10() +
+      scale_fill_manual(values=rev(color_names[1:n_conditions])) +
+      theme_bw() +
+      labs(title=plot_title, x="Number of CDR3 amino acids", y="")
+  
+  show_fig(p)
+}
+
+display_spectratype(
+  clonotype_freq_tab, "Overall spectratype of samples"
+)
+```
+
+### Heavy chain
+
+```{r}
+display_spectratype(
+  clonotype_freq_tab, "IgH spectratype of samples", "IGH"
+)
+```
+
+### Light chains
+
+```{r}
+display_spectratype(
+  clonotype_freq_tab, "IgK spectratype of samples", "IGK"
+)
+```
+
+```{r}
+display_spectratype(
+  clonotype_freq_tab, "IgL spectratype of samples", "IGL"
+)
+```
+
 ## Repertoire overlap
 
 ```{r}
 imm_overlap_pb <- repOverlap(immdata$data, .method = "public", .verbose = F)
-vis(imm_overlap_pb)
+vis(imm_overlap_pb) +
+  ggtitle("Overlap of reprtoire based on publicity index")
 ```
-
 
 ```{r}
 imm_overlap_mrs <- repOverlap(immdata$data, .method = "morisita", .verbose = F)
-vis(imm_overlap_mrs)
+vis(imm_overlap_mrs) +
+  ggtitle("Overlap of reprtoire based on the Morisita index")
 ```
 
 ```{r}
-imm_overlap_mrs %>%
+p <- imm_overlap_mrs %>%
   repOverlapAnalysis("mds") %>%
   vis()
 ```
