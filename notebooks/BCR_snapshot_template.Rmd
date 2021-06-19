@@ -582,6 +582,25 @@ display_spectratype(
 )
 ```
 
+### V gene spectratypes
+
+```{r}
+for(i in seq(1, length(immdata$data))){
+  
+  smpl <- names(immdata$data)[[i]]
+  
+  p <- immdata$data[[i]] %>%
+  spectratype(.quant = "count", .col = "aa+v") %>%
+  vis() +
+    ggtitle(paste("Spectratype of ", smpl, sep=" "))
+  
+  print(p)
+  
+}
+```
+
+
+
 ## Gene V usage
 
 ```{r}
