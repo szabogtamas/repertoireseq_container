@@ -663,10 +663,37 @@ display_top_vgenes(immdata, "Lambda chain V genes", "iglv")
 
 ### V gene clusters
 
-```{r}
+```{r message=FALSE, warning=FALSE}
+overall_gene_usage_tab <- geneUsage(immdata$data, paste(params$species, "ighv", sep="."), .norm=TRUE)
 
+overall_gene_usage_tab %>%
+  geneUsageAnalysis(.method = "cor") %>%
+  vis(.title = "Gene usage correlation", .leg.title = "Cor", .text.size = 1.5)
 ```
 
+```{r message=FALSE, warning=FALSE}
+overall_gene_usage_tab %>%
+  geneUsageAnalysis(.method = "js") %>%
+  vis(.title = "Jensen-Shannon Divergence of gene usage", .leg.title = "JS", .text.size = 1.5)
+```
+
+```{r message=FALSE, warning=FALSE}
+overall_gene_usage_tab %>%
+  geneUsageAnalysis(.method = "js+pca") %>%
+  vis(.by="Condition", .meta = immdata$meta) +
+  scale_fill_manual(values=rev(color_names[1:N_CONDITION])) +
+  scale_color_manual(values=rev(color_names[1:N_CONDITION])) +
+  ggtitle("Principal Component Analysis of JS scores")
+```
+
+```{r message=FALSE, warning=FALSE}
+overall_gene_usage_tab %>%
+  geneUsageAnalysis(.method = "js+pca+kmeans") %>%
+  vis(.by="Condition", .meta = immdata$meta, .plot = "clust") +
+  scale_fill_manual(values=rev(color_names[1:N_CONDITION])) +
+  scale_color_manual(values=rev(color_names[1:N_CONDITION])) +
+  ggtitle("K-means clustering after PCA of JS scores")
+```
 
 ## Clone lineages
 
