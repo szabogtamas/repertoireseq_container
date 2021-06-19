@@ -415,7 +415,7 @@ show_fig(p)
 ```
 
 ```{r}
-repOverlapAnalysis(imm_overlap_mrs, "mds+kmeans") %>% vis()
+repOverlapAnalysis(imm_overlap_jc, "mds+kmeans") %>% vis()
 ```
 
 ### Morisita's similarity index
