@@ -19,7 +19,7 @@ params:
 
 ### Initialize tools
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 # Import packages
 
 library(tidyr)
@@ -33,7 +33,7 @@ library(DT)
 library(immunarch)
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 # Define function to show a nice table with download option
 
 ALLOW_INTERACTION <- knitr::is_html_output()
@@ -72,7 +72,7 @@ color_names <- pal_npg()(9)
 
 ### Parse and preprocess data
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 # Rearrange repertoire table to match Immunarch expectations
 
 repertoire_folder <- "reconstructed_bcrs"
@@ -108,7 +108,7 @@ immdata$meta <- left_join(immdata$meta, raw_metadata, by=c(Sample="SampleID"))
 N_CONDITION <- length(unique(raw_metadata$Condition))
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 # Create long table for tidy operations
 
 clonotype_freq_tab <- immdata$data %>%
@@ -131,7 +131,7 @@ vis(exp_vol, .by = c("Condition"), .meta = immdata$meta) +
   scale_fill_manual(values=rev(color_names[1:N_CONDITION]))
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 clonotype_summary <- clonotype_freq_tab %>%
   group_by(Sample, Condition, receptorChain) %>%
   summarise(
@@ -143,7 +143,7 @@ clonotype_summary <- clonotype_freq_tab %>%
 show_tab(clonotype_summary)
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 p <- clonotype_summary %>%
   ggplot(aes(x=Sample, y=Proportion_in_Sample, fill=receptorChain)) + 
     geom_bar(position="stack", stat="identity") +
@@ -157,7 +157,7 @@ p <- clonotype_summary %>%
 show_fig(p)
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 p <- clonotype_summary %>%
   ggplot(aes(x=Sample, y=Number_of_Clonotypes, fill=receptorChain)) + 
     geom_bar(position="stack", stat="identity") +
@@ -173,13 +173,13 @@ show_fig(p)
 
 ### Distribution of proportions
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 exp_cnt <- repExplore(immdata$data, .method = "count")
 vis(exp_cnt) +
   scale_color_npg()
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 display_clonotype_proportion_distribution <- function(in_tab, plot_title, chain_name=NULL, n_conditions=N_CONDITION) {
   p <- in_tab %>%
     filter(if(is.null(chain_name)) TRUE else receptorChain == !!chain_name) %>%
@@ -198,19 +198,19 @@ display_clonotype_proportion_distribution(
 )
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 display_clonotype_proportion_distribution(
   clonotype_freq_tab, "Distribution of IgH clonotype proportions", "IGH"
 )
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 display_clonotype_proportion_distribution(
   clonotype_freq_tab, "Distribution of IgK clonotype proportions", "IGK"
 )
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 display_clonotype_proportion_distribution(
   clonotype_freq_tab, "Distribution of IgL clonotype proportions", "IGL"
 )
@@ -279,7 +279,7 @@ display_top_abundant_clonotypes(clonotype_freq_tab, "Top IgL clonotypes", "IGL")
 
 ### Top clones
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 wrap_wilcox_stats <- function(data, condition_1, condition_2, condition_col="Condition", valuecol="Proportion") {
   skip_to_next <- FALSE
   data[[condition_col]] = as.character(data[[condition_col]] )
@@ -339,7 +339,7 @@ differential_clono_tab %>%
 
 ### Overview of statistics
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 p <- differential_clono_tab %>%
   filter(!is.na(FC)) %>%
   mutate(
@@ -382,7 +382,7 @@ show_top_clone_proportions(
 
 ### Shared public CDR3
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 imm_overlap_pb <- repOverlap(immdata$data, .method = "public", .verbose = F)
 vis(imm_overlap_pb) +
   ggtitle("Overlap of repertoire based on publicity index")
@@ -390,13 +390,13 @@ vis(imm_overlap_pb) +
 
 ### Jaccard's index
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 imm_overlap_jc <- repOverlap(immdata$data, .method = "jaccard", .verbose = F)
 vis(imm_overlap_jc) +
   ggtitle("Overlap of repertoire based on Jaccard's index")
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 p <- imm_overlap_jc %>%
   repOverlapAnalysis("mds") %>%
   .$points %>%
@@ -415,19 +415,19 @@ p <- imm_overlap_jc %>%
 show_fig(p)
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 repOverlapAnalysis(imm_overlap_jc, "mds+kmeans") %>% vis()
 ```
 
 ### Morisita's similarity index
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 imm_overlap_mrs <- repOverlap(immdata$data, .method = "morisita", .verbose = F)
 vis(imm_overlap_mrs) +
   ggtitle("Overlap of reprtoire based on the Morisita index")
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 p <- imm_overlap_mrs %>%
   repOverlapAnalysis("mds") %>%
   .$points %>%
@@ -446,7 +446,7 @@ p <- imm_overlap_mrs %>%
 show_fig(p)
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 repOverlapAnalysis(imm_overlap_mrs, "mds+kmeans") %>% vis()
 ```
 
@@ -454,7 +454,7 @@ repOverlapAnalysis(imm_overlap_mrs, "mds+kmeans") %>% vis()
 
 ### Alpha diversity
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 display_rep_diversity <- function(intab, method, column, title, n_conditions=N_CONDITION) {
   
   dt_tab <- repDiversity(intab, method, column)
@@ -483,13 +483,13 @@ display_rep_diversity(
 )
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 display_rep_diversity(
   immdata$data, "div", "nt", "Alpha diversity of CDR3 nucleotides"
 )
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 display_rep_diversity(
   immdata$data, "div", "v", "Alpha diversity of CDR3 V genes"
 )
@@ -497,19 +497,19 @@ display_rep_diversity(
 
 ### Gini-Simpson
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 display_rep_diversity(
   immdata$data, "gini.simp", "aa", "Gini-Simpson CDR3 amino acid diversity"
 )
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 display_rep_diversity(
   immdata$data, "gini.simp", "nt", "Gini-Simpson CDR3 nucleotide diversity"
 )
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 display_rep_diversity(
   immdata$data, "gini.simp", "v", "Gini-Simpson CDR3 V gene diversity"
 )
@@ -517,19 +517,19 @@ display_rep_diversity(
 
 ### Cha1 scores
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 display_rep_diversity(
   immdata$data, "chao1", "aa", "Chao1 index of CDR3 amino acid diversity"
 )
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 display_rep_diversity(
   immdata$data, "chao1", "nt", "Chao1 index of CDR3 nucleotide diversity"
 )
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 display_rep_diversity(
   immdata$data, "chao1", "v", "Chao1 index of CDR3 V gene diversity"
 )
@@ -539,9 +539,9 @@ display_rep_diversity(
 
 ### Overall spectratype
 
-```{r warning=FALSE}
+```{r message=FALSE, warning=FALSE}
 display_spectratype <- function(in_tab, plot_title, chain_name=NULL, n_conditions=N_CONDITION) {
-  p <- in_tab %>%
+  in_tab %>%
     filter(if(is.null(chain_name)) TRUE else receptorChain == !!chain_name) %>%
     mutate(
       CDR3.len = nchar(CDR3.aa),
@@ -554,8 +554,6 @@ display_spectratype <- function(in_tab, plot_title, chain_name=NULL, n_condition
       scale_fill_manual(values=rev(color_names[1:n_conditions])) +
       theme_bw() +
       labs(title=plot_title, x="Number of CDR3 amino acids", y="")
-  
-  show_fig(p)
 }
 
 display_spectratype(
@@ -565,7 +563,7 @@ display_spectratype(
 
 ### Heavy chain
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 display_spectratype(
   clonotype_freq_tab, "IgH spectratype of samples", "IGH"
 )
@@ -573,13 +571,13 @@ display_spectratype(
 
 ### Light chains
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 display_spectratype(
   clonotype_freq_tab, "IgK spectratype of samples", "IGK"
 )
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 display_spectratype(
   clonotype_freq_tab, "IgL spectratype of samples", "IGL"
 )
@@ -587,7 +585,7 @@ display_spectratype(
 
 ### V gene spectratypes
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 for(i in seq(1, length(immdata$data))){
   
   smpl <- names(immdata$data)[[i]]
@@ -606,7 +604,7 @@ for(i in seq(1, length(immdata$data))){
 
 ### Heavy chain
 
-```{r warning=FALSE}
+```{r message=FALSE, warning=FALSE}
 display_top_vgenes <- function(in_tab, plot_title, chain_name, species=params$species, n_conditions=N_CONDITION) {
   
   vgene_usage_tab <- in_tab$data %>%
@@ -654,11 +652,11 @@ display_top_vgenes(immdata, "Heavy chain V genes", "ighv")
 
 ### Light chains
 
-```{r warning=FALSE}
+```{r message=FALSE, warning=FALSE}
 display_top_vgenes(immdata, "Kappa chain V genes", "igkv")
 ```
 
-```{r warning=FALSE}
+```{r message=FALSE, warning=FALSE}
 display_top_vgenes(immdata, "Lambda chain V genes", "iglv")
 ```
 
@@ -668,19 +666,19 @@ display_top_vgenes(immdata, "Lambda chain V genes", "iglv")
 overall_gene_usage_tab <- geneUsage(immdata$data, paste(params$species, "ighv", sep="."), .norm=TRUE)
 
 overall_gene_usage_tab %>%
-  geneUsageAnalysis(.method = "cor") %>%
+  geneUsageAnalysis(.method = "cor", .verbose = F) %>%
   vis(.title = "Gene usage correlation", .leg.title = "Cor", .text.size = 1.5)
 ```
 
 ```{r message=FALSE, warning=FALSE}
 overall_gene_usage_tab %>%
-  geneUsageAnalysis(.method = "js") %>%
+  geneUsageAnalysis(.method = "js", .verbose = F) %>%
   vis(.title = "Jensen-Shannon Divergence of gene usage", .leg.title = "JS", .text.size = 1.5)
 ```
 
 ```{r message=FALSE, warning=FALSE}
 overall_gene_usage_tab %>%
-  geneUsageAnalysis(.method = "js+pca") %>%
+  geneUsageAnalysis(.method = "js+pca", .verbose = F) %>%
   vis(.by="Condition", .meta = immdata$meta) +
   scale_fill_manual(values=rev(color_names[1:N_CONDITION])) +
   scale_color_manual(values=rev(color_names[1:N_CONDITION])) +
@@ -689,14 +687,14 @@ overall_gene_usage_tab %>%
 
 ```{r message=FALSE, warning=FALSE}
 overall_gene_usage_tab %>%
-  geneUsageAnalysis(.method = "js+pca+kmeans") %>%
+  geneUsageAnalysis(.method = "js+pca+kmeans", .verbose = F) %>%
   vis(.by="Condition", .meta = immdata$meta, .plot = "clust") +
   scale_fill_manual(values=rev(color_names[1:N_CONDITION])) +
   scale_color_manual(values=rev(color_names[1:N_CONDITION])) +
   ggtitle("K-means clustering after PCA of JS scores")
 ```
 
-```{r warning=FALSE}
+```{r message=FALSE, warning=FALSE}
 overall_gene_usage_tab %>%
   geneUsageAnalysis("js+hclust", .verbose = F) %>%
   vis(.plot = "clust") +
