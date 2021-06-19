@@ -787,7 +787,7 @@ show_fig(p)
 ```
 
 ```{r}
-p <- clonotype_freq_tab %>%
+clonotype_freq_tab %>%
   group_by(Condition, Sample, CDR3.aa) %>%
   mutate(numConverged = n()) %>%
   ungroup() %>%
@@ -815,6 +815,4 @@ p <- clonotype_freq_tab %>%
     labs(
       title="Clonotype sizes as a function of convergence",
       x="Clone size (proportion is sample)", y="Number of nucleotide sequence variants for CDR3")
-
-show_fig(p)
 ```
