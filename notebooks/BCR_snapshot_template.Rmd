@@ -702,10 +702,3 @@ overall_gene_usage_tab %>%
     scale_color_manual(values=rev(color_names[1:N_CONDITION])) +
     ggtitle("Hierarchical clustering of samples based on JS scores")
 ```
-
-## Clone lineages
-
-```{r}
-
-```
-
