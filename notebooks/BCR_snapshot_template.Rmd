@@ -375,56 +375,6 @@ show_top_clone_proportions(
 )
 ```
 
-## Spectratypes
-
-### Overall spectratype
-
-```{r warning=FALSE}
-display_spectratype <- function(in_tab, plot_title, chain_name=NULL, n_conditions=N_CONDITION) {
-  p <- in_tab %>%
-    filter(if(is.null(chain_name)) TRUE else receptorChain == !!chain_name) %>%
-    mutate(
-      CDR3.len = nchar(CDR3.aa),
-      Sample = factor(Sample),
-      Sample = factor(Sample, levels=rev(levels(Sample)))
-    ) %>%
-    ggplot(aes(x=CDR3.len, y=Sample, fill=Condition)) +
-      geom_density_ridges(scale=1.1, alpha=0.7) +
-      scale_x_log10() +
-      scale_fill_manual(values=rev(color_names[1:n_conditions])) +
-      theme_bw() +
-      labs(title=plot_title, x="Number of CDR3 amino acids", y="")
-  
-  show_fig(p)
-}
-
-display_spectratype(
-  clonotype_freq_tab, "Overall spectratype of samples"
-)
-```
-
-### Heavy chain
-
-```{r}
-display_spectratype(
-  clonotype_freq_tab, "IgH spectratype of samples", "IGH"
-)
-```
-
-### Light chains
-
-```{r}
-display_spectratype(
-  clonotype_freq_tab, "IgK spectratype of samples", "IGK"
-)
-```
-
-```{r}
-display_spectratype(
-  clonotype_freq_tab, "IgL spectratype of samples", "IGL"
-)
-```
-
 ## Repertoire overlap
 
 ### Shared public CDR3
@@ -579,6 +529,56 @@ display_rep_diversity(
 ```{r}
 display_rep_diversity(
   immdata$data, "chao1", "v", "Chao1 index of CDR3 V gene diversity"
+)
+```
+
+## Spectratypes
+
+### Overall spectratype
+
+```{r warning=FALSE}
+display_spectratype <- function(in_tab, plot_title, chain_name=NULL, n_conditions=N_CONDITION) {
+  p <- in_tab %>%
+    filter(if(is.null(chain_name)) TRUE else receptorChain == !!chain_name) %>%
+    mutate(
+      CDR3.len = nchar(CDR3.aa),
+      Sample = factor(Sample),
+      Sample = factor(Sample, levels=rev(levels(Sample)))
+    ) %>%
+    ggplot(aes(x=CDR3.len, y=Sample, fill=Condition)) +
+      geom_density_ridges(scale=1.1, alpha=0.7) +
+      scale_x_log10() +
+      scale_fill_manual(values=rev(color_names[1:n_conditions])) +
+      theme_bw() +
+      labs(title=plot_title, x="Number of CDR3 amino acids", y="")
+  
+  show_fig(p)
+}
+
+display_spectratype(
+  clonotype_freq_tab, "Overall spectratype of samples"
+)
+```
+
+### Heavy chain
+
+```{r}
+display_spectratype(
+  clonotype_freq_tab, "IgH spectratype of samples", "IGH"
+)
+```
+
+### Light chains
+
+```{r}
+display_spectratype(
+  clonotype_freq_tab, "IgK spectratype of samples", "IGK"
+)
+```
+
+```{r}
+display_spectratype(
+  clonotype_freq_tab, "IgL spectratype of samples", "IGL"
 )
 ```
 
