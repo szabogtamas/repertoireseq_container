@@ -43,4 +43,6 @@ RUN cd \tmp && \
     unzip mixcr-3.0.13.zip -d /home/rstudio/mixcr
 ENV PATH="/home/rstudio/mixcr/mixcr-3.0.13:${PATH}"
 
+ADD ./ /home/rstudio/repo_files
+
 CMD ["/init"]
