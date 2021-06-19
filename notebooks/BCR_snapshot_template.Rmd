@@ -11,6 +11,7 @@ params:
   tagged_repertoire: "../test_data/merged_repertoire.csv"
   sample_metadata: "../test_data/samples_meta.csv"
   condition_column: "Label"
+  species: "musmus"
 ---
 
 ## Setup
@@ -125,7 +126,8 @@ clonotype_freq_tab <- immdata$data %>%
 
 ```{r message=FALSE, warning=FALSE}
 exp_vol <- repExplore(immdata$data, .method = "volume")
-vis(exp_vol, .by = c("Condition"), .meta = immdata$meta)
+vis(exp_vol, .by = c("Condition"), .meta = immdata$meta) +
+  scale_fill_manual(values=rev(color_names[1:N_CONDITION]))
 ```
 
 ```{r}
@@ -599,13 +601,72 @@ for(i in seq(1, length(immdata$data))){
 }
 ```
 
-
-
 ## Gene V usage
+
+### Heavy chain
+
+```{r warning=FALSE}
+display_top_vgenes <- function(in_tab, plot_title, chain_name, species=params$species, n_conditions=N_CONDITION) {
+  
+  vgene_usage_tab <- in_tab$data %>%
+    geneUsage(paste(species, chain_name, sep="."), .ambig = "maj", .norm=TRUE) %>%
+    pivot_longer(-Names) %>%
+    rename(
+      Gene = Names,
+      Sample = name
+    ) %>%
+    left_join(in_tab$meta, by="Sample") %>%
+    filter(grepl(toupper(chain_name), Gene)) %>%
+    group_by(Condition) %>%
+    mutate(
+      meanProp = mean(value, na.rm=TRUE)
+    ) %>%
+    ungroup() %>%
+    arrange(desc(meanProp))
+  
+  top_vgene <- vgene_usage_tab %>%
+    distinct(Gene) %>%
+    head(25) %>%
+    .$Gene
+  
+  vgene_usage_tab %>%
+    filter(Gene %in% top_vgene) %>%
+    mutate(
+      Gene = factor(Gene, levels=top_vgene)
+    ) %>%
+    plot_ly(
+      x = ~Gene, y = ~value, color = ~Condition, type = "box",
+      boxpoints = FALSE, width=1200, height=800,
+      colors=rev(color_names[1:n_conditions])
+    ) %>%
+    layout(
+      xaxis = list(title="", tickangle = 30, tickfont=list(size=12)),
+      yaxis = list(title="Usage score", tickfont=list(size=12)),
+      boxmode = "group",
+      legend = list(orientation="h", xanchor="center", x=0.5),
+      title = plot_title
+    )
+}
+
+display_top_vgenes(immdata, "Heavy chain V genes", "ighv")
+```
+
+### Light chains
+
+```{r warning=FALSE}
+display_top_vgenes(immdata, "Kappa chain V genes", "igkv")
+```
+
+```{r warning=FALSE}
+display_top_vgenes(immdata, "Lambda chain V genes", "iglv")
+```
+
+### V gene clusters
 
 ```{r}
 
 ```
+
 
 ## Clone lineages
 
