@@ -427,11 +427,15 @@ display_spectratype(
 
 ## Repertoire overlap
 
+### Shared public CDR3
+
 ```{r}
 imm_overlap_pb <- repOverlap(immdata$data, .method = "public", .verbose = F)
 vis(imm_overlap_pb) +
-  ggtitle("Overlap of reprtoire based on publicity index")
+  ggtitle("Overlap of repertoire based on publicity index")
 ```
+
+### Morisita's similarity index
 
 ```{r}
 imm_overlap_mrs <- repOverlap(immdata$data, .method = "morisita", .verbose = F)
@@ -442,7 +446,20 @@ vis(imm_overlap_mrs) +
 ```{r}
 p <- imm_overlap_mrs %>%
   repOverlapAnalysis("mds") %>%
-  vis()
+  .$points %>%
+  data.frame() %>%
+  tibble::rownames_to_column("Sample") %>%
+  left_join(immdata$meta, by="Sample") %>%
+  ggplot(aes(x=X1, y=X2, color=Condition, label=Sample)) +
+    geom_point() +
+    scale_color_manual(values=rev(color_names[1:N_CONDITION])) +
+    theme_bw() +
+    labs(
+      title="Multidimensional scalin of Morisita scores",
+      x="Dimension 1", y="Dimension 2", color=""
+    )
+
+show_fig(p)
 ```
 
 ## Repertoire diversities
