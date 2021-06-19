@@ -435,6 +435,37 @@ vis(imm_overlap_pb) +
   ggtitle("Overlap of repertoire based on publicity index")
 ```
 
+### Jaccard's index
+
+```{r}
+imm_overlap_jc <- repOverlap(immdata$data, .method = "jaccard", .verbose = F)
+vis(imm_overlap_jc) +
+  ggtitle("Overlap of repertoire based on Jaccard's index")
+```
+
+```{r}
+p <- imm_overlap_jc %>%
+  repOverlapAnalysis("mds") %>%
+  .$points %>%
+  data.frame() %>%
+  tibble::rownames_to_column("Sample") %>%
+  left_join(immdata$meta, by="Sample") %>%
+  ggplot(aes(x=X1, y=X2, color=Condition, label=Sample)) +
+    geom_point() +
+    scale_color_manual(values=rev(color_names[1:N_CONDITION])) +
+    theme_bw() +
+    labs(
+      title="Multidimensional scaling of Jaccard's scores",
+      x="Dimension 1", y="Dimension 2", color=""
+    )
+
+show_fig(p)
+```
+
+```{r}
+repOverlapAnalysis(imm_overlap_mrs, "mds+kmeans") %>% vis()
+```
+
 ### Morisita's similarity index
 
 ```{r}
@@ -455,25 +486,100 @@ p <- imm_overlap_mrs %>%
     scale_color_manual(values=rev(color_names[1:N_CONDITION])) +
     theme_bw() +
     labs(
-      title="Multidimensional scalin of Morisita scores",
+      title="Multidimensional scaling of Morisita scores",
       x="Dimension 1", y="Dimension 2", color=""
     )
 
 show_fig(p)
 ```
 
+```{r}
+repOverlapAnalysis(imm_overlap_mrs, "mds+kmeans") %>% vis()
+```
+
 ## Repertoire diversities
 
+### Alpha diversity
+
 ```{r}
-immdata$data %>%
-  repDiversity("chao1") %>%
-  vis()
+display_rep_diversity <- function(intab, method, column, title, n_conditions=N_CONDITION) {
+  
+  dt_tab <- repDiversity(intab, method, column)
+  
+  if (method == "chao1") {
+    dt_tab <- dt_tab %>%
+      data.frame() %>%
+      tibble::rownames_to_column("Sample") %>%
+      rename(Value=Estimator)
+  }
+  
+  p <- dt_tab %>%
+    left_join(immdata$meta, by="Sample") %>%
+    ggplot(aes(x=Condition, y=Value, color=Condition, label=Sample)) +
+      geom_boxplot(outlier.shape=NA) +
+      geom_point(size=2, alpha=0.8, position = position_jitterdodge()) +
+      scale_color_manual(values=rev(color_names[1:n_conditions])) +
+      theme_bw() +
+      labs(title=title, x="", y="Chao1 index", color="")
+  
+  show_fig(p)
+}
+
+display_rep_diversity(
+  immdata$data, "div", "aa", "Alpha diversity of CDR3 amino acids"
+)
 ```
 
 ```{r}
-immdata$data %>%
-  repDiversity("div") %>%
-  vis()
+display_rep_diversity(
+  immdata$data, "div", "nt", "Alpha diversity of CDR3 nucleotides"
+)
+```
+
+```{r}
+display_rep_diversity(
+  immdata$data, "div", "v", "Alpha diversity of CDR3 V genes"
+)
+```
+
+### Gini-Simpson
+
+```{r}
+display_rep_diversity(
+  immdata$data, "gini.simp", "aa", "Gini-Simpson CDR3 amino acid diversity"
+)
+```
+
+```{r}
+display_rep_diversity(
+  immdata$data, "gini.simp", "nt", "Gini-Simpson CDR3 nucleotide diversity"
+)
+```
+
+```{r}
+display_rep_diversity(
+  immdata$data, "gini.simp", "v", "Gini-Simpson CDR3 V gene diversity"
+)
+```
+
+### Cha1 scores
+
+```{r}
+display_rep_diversity(
+  immdata$data, "chao1", "aa", "Chao1 index of CDR3 amino acid diversity"
+)
+```
+
+```{r}
+display_rep_diversity(
+  immdata$data, "chao1", "nt", "Chao1 index of CDR3 nucleotide diversity"
+)
+```
+
+```{r}
+display_rep_diversity(
+  immdata$data, "chao1", "v", "Chao1 index of CDR3 V gene diversity"
+)
 ```
 
 ## Gene V usage
