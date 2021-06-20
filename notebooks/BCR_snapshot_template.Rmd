@@ -11,7 +11,9 @@ params:
   report_author: "Anonymus"
   tagged_repertoire: "../test_data/merged_repertoire.csv"
   sample_metadata: "../test_data/samples_meta.csv"
+  sample_metadata: "../test_data/samples_meta.csv"
   condition_column: "Label"
+  condition_order: null
   species: "musmus"
 ---
 
@@ -104,6 +106,13 @@ unlink(repertoire_folder, recursive=TRUE, force=TRUE)
 
 raw_metadata <- read.csv(params$sample_metadata)
 raw_metadata$Condition <- raw_metadata[[params$condition_column]]
+if(!is.null(params$condition_order)) {
+  condition_order <- raw_metadata$Condition  %>%
+    params$condition_order %>%
+    strsplit(",") %>%
+    unlist()
+  raw_metadata$Condition <- factor(raw_metadata$Condition, levels=condition_order)
+}
 immdata$meta <- left_join(immdata$meta, raw_metadata, by=c(Sample="SampleID"))
 N_CONDITION <- length(unique(raw_metadata$Condition))
 ```
