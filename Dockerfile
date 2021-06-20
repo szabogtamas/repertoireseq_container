@@ -15,6 +15,7 @@ RUN sudo apt-get update && \
     sudo apt-get install -y libgeos-dev && \
     sudo apt-get install -y libudunits2-dev && \
     sudo apt-get install -y libmagick++-dev && \
+    sudo apt-get install -y art-nextgen-simulation-tools && \
     sudo apt-get install -y phylip
 
 RUN install2.r --error \
