@@ -124,6 +124,7 @@ process generateReport {
         val report_title from params.report_title
         val report_author from params.report_author
         val report_condition_column from params.condition_column
+        val report_condition_order from params.condition_order
         val species from params.species
         file clonotype_tab from tagged_repertoire
         file sample_meta from params.sample_metadata
@@ -132,6 +133,6 @@ process generateReport {
         file reperoire_report.html into final_report
 
     """
-    R --slave -e 'rmarkdown::render("${report_template}", "${report_filename}", params = list(clonotype_tab=${clonotype_tab}, sample_metadata=${sample_metadata}, condition_column=${condition_column}, species=${species}'
+    R --slave -e 'rmarkdown::render("${report_template}", "${report_filename}", params = list(clonotype_tab=${clonotype_tab}, sample_metadata=${sample_metadata}, condition_column=${condition_column}, condition_order=${condition_order}, species=${species}'
     """
 } 
