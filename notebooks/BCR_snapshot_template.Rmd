@@ -11,7 +11,6 @@ params:
   report_author: "Anonymus"
   tagged_repertoire: "../test_data/merged_repertoire.csv"
   sample_metadata: "../test_data/samples_meta.csv"
-  sample_metadata: "../test_data/samples_meta.csv"
   condition_column: "Label"
   condition_order: null
   species: "musmus"
