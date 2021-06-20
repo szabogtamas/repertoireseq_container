@@ -1,0 +1,28 @@
+---
+title: "Document steps taken to generate test data"
+output:
+  pdf_document:
+    toc: true
+---
+
+## Setup
+
+### Initialize tools
+
+```{r message=FALSE, warning=FALSE}
+# Import packages
+
+library(tidyr)
+```
+
+### Define seed sequences
+
+A set of BCR sequences after vaccination published by [Poulsen et al.](https://pubmed.ncbi.nlm.nih.gov/21930965/) were downloaded from [PIRD](https://db.cngb.org/pird/tbadb/).
+
+
+```{r}
+seed_igh_sequences = c()
+seed_igk_sequences = c()
+seed_igl_sequences = c()
+```
+
