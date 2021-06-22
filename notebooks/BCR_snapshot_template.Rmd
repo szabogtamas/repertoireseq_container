@@ -11,6 +11,7 @@ params:
   report_author: "Anonymus"
   tagged_repertoire: "../test_data/merged_repertoire.csv"
   sample_metadata: "../test_data/samples_meta.csv"
+  table_path: "../test_repertoire_summary.xlsx.csv"
   condition_column: "Label"
   condition_order: null
   species: "musmus"
@@ -31,6 +32,7 @@ library(ggridges)
 library(plotly)
 library(pheatmap)
 library(DT)
+library(openxlsx)
 library(immunarch)
 ```
 
@@ -127,6 +129,12 @@ clonotype_freq_tab <- immdata$data %>%
     logFreq = log(Proportion),
     receptorChain = substr(V.name, 1, 3)
   )
+
+clonotype_freq_tab %>%
+  select(
+    Clones, Proportion, CDR3.nt, CDR3.aa, V.name, receptorChain, Sample, Condition
+  ) %>%
+  write.xlsx(params$table_path)
 ```
 
 ## Clonotype frequencies
