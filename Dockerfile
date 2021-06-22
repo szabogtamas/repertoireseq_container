@@ -16,7 +16,8 @@ RUN sudo apt-get update && \
     sudo apt-get install -y libudunits2-dev && \
     sudo apt-get install -y libmagick++-dev && \
     sudo apt-get install -y art-nextgen-simulation-tools && \
-    sudo apt-get install -y phylip
+    sudo apt-get install -y phylip && \
+    sudo apt-get install -y trimmomatic
 
 RUN install2.r --error \
     --deps TRUE \
@@ -41,8 +42,15 @@ RUN R -e "devtools::install_github('immunomind/immunarch')"
 
 RUN cd \tmp && \
     wget "https://github.com/milaboratory/mixcr/releases/download/v3.0.13/mixcr-3.0.13.zip" && \
-    unzip mixcr-3.0.13.zip -d /home/rstudio/mixcr
-ENV PATH="/home/rstudio/mixcr/mixcr-3.0.13:${PATH}"
+    unzip mixcr-3.0.13.zip -d /usr/share/mixcr/
+
+RUN cd /tmp &&\
+  wget -qO- https://get.nextflow.io | bash &&\
+  mv nextflow /usr/local/bin/nextflow  &&\
+  sudo chmod 777 /usr/local/bin/nextflow &&\
+  sudo chown rstudio /usr/local/bin/nextflow
+
+ENV PATH="/usr/local/bin:/usr/share/mixcr/mixcr-3.0.13:${PATH}"
 
 ADD ./ /home/rstudio/repo_files
 
