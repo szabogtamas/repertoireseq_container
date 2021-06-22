@@ -12,8 +12,8 @@
  */
 
 Channel
-    .from([params.forward_fastqs, params.reverse_fastqs, params.sample_ids].transpose())
-    .map{[params.input_folder + '/' + it[0], params.input_folder + '/' + it[1], it[2]]}
+    .fromFilePairs(params.input_folder + '/' + params.sample_prefix + '*_{1,2}.f*')
+    .map{ [it[1][0], it[1][1], it[0]] }
     .set{ insamples }
 
 process rnaBulkTrimmomaticPE {
@@ -22,14 +22,14 @@ process rnaBulkTrimmomaticPE {
 
     input:
         val adapterFileIllumina from params.adapterFileIllumina
-        val manycpu from params.manycpu
+        val manycpu from params.numcores
         tuple forward, reverse, sample from insamples
 
     output:
         tuple sample, "${sample}_trim_1.fastq", "${sample}_trim_2.fastq" into trimmed_fastqs
 
     """
-    trimmomatic PE $forward $reverse\
+    TrimmomaticPE $forward $reverse\
     ${sample}_trim_1.fastq ${sample}_forward_unpaired.fastq\
     ${sample}_trim_2.fastq ${sample}_reverse_unpaired.fastq\
     ILLUMINACLIP:$adapterFileIllumina:2:30:10:8:keepBothReads LEADING:3 TRAILING:3 MINLEN:36\
@@ -53,10 +53,10 @@ process reconstructBCRepertoireMiXCR {
 
     output:
         file "${sample}_repertoire.txt" into repertoire_reports
-        tuple sample, ${sample}_clones.clna into repertoire_clna
+        tuple sample, "${sample}_clones.clna" into repertoire_clna
 
     """
-    mixcr analyze shotgun\
+    /home/rstudio/mixcr/mixcr-3.0.13/mixcr analyze shotgun\
     --only-productive\
     --starting-material rna\
     --receptor-type bcr\
@@ -135,4 +135,4 @@ process generateReport {
     """
     R --slave -e 'rmarkdown::render("${report_template}", "${report_filename}", params = list(clonotype_tab=${clonotype_tab}, sample_metadata=${sample_metadata}, condition_column=${condition_column}, condition_order=${condition_order}, species=${species}'
     """
-} 
+}
