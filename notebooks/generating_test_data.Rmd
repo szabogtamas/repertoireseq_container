@@ -13,16 +13,143 @@ output:
 # Import packages
 
 library(tidyr)
+library(seqinr)
 ```
+
+```{r}
+test_data_simulation_folder <- "../test_data/data_generation"
+```
+
 
 ### Define seed sequences
 
-A set of BCR sequences after vaccination published by [Poulsen et al.](https://pubmed.ncbi.nlm.nih.gov/21930965/) were downloaded from [PIRD](https://db.cngb.org/pird/tbadb/).
-
+A set of BCR sequences from OVA-stimulated mice published by [https://pubmed.ncbi.nlm.nih.gov/31428692/](Goldstein et al.) is used as template for read simulation.
 
 ```{r}
-seed_igh_sequences = c()
-seed_igk_sequences = c()
-seed_igl_sequences = c()
+real_bcr_seqs <- test_data_simulation_folder %>%
+  file.path("goldstein_et_al_ova_bcr.csv") %>%
+  read.csv(stringsAsFactors=FALSE)
+
+head(real_bcr_seqs)
 ```
 
+## Subsample repertoire
+
+In the test dataset, there will be three conditions and 4 samples per condition. One condition will be flat, with no major clones, while the two other condition simulated an immune response, but against different antigens.
+
+### Select clone pools
+
+```{r}
+bg_idx <- sample(nrow(real_bcr_seqs), 240)
+
+background_pool <- real_bcr_seqs[bg_idx,]
+```
+
+```{r}
+ag1_idx <- sample(nrow(real_bcr_seqs[-bg_idx,]), 20)
+ag1_pool <- real_bcr_seqs[-bg_idx,][ag1_idx,]
+```
+
+```{r}
+ag2_idx <- sample(nrow(real_bcr_seqs[-bg_idx,][-ag1_idx,]), 20)
+ag2_pool <- real_bcr_seqs[-bg_idx,][-ag1_idx,][ag2_idx,]
+```
+
+```{r}
+common_ag_idx <- sample(nrow(real_bcr_seqs[-bg_idx,][-ag1_idx,][-ag2_idx,]), 4)
+common_ag_pool <- real_bcr_seqs[-bg_idx,][-ag1_idx,][-ag2_idx,][common_ag_idx,]
+```
+
+### Simulate control samples
+
+```{r}
+simulated_samples_list <- list()
+
+for (i in seq(1, 4)){
+  name_of_sample <- paste("sample", i, sep="_")
+  sim_sample_table <- background_pool %>%
+    sample_n(80) %>%
+    mutate(nClone = sample(25:50, n(), replace=T))
+  simulated_samples_list[[name_of_sample]] <- sim_sample_table 
+}
+```
+
+### Simulate expanded repertoires
+
+```{r}
+for (i in seq(5, 8)){
+  name_of_sample <- paste("sample", i, sep="_")
+  
+  major_clone_table <- ag1_pool %>%
+    sample_n(15) %>%
+    mutate(nClone = sample(200:300, n(), replace=T))
+  
+  common_ag_tab <- common_ag_pool %>%
+    mutate(nClone = sample(80:120, n(), replace=T))
+  
+  sim_sample_table <- background_pool %>%
+    sample_n(60) %>%
+    mutate(nClone = sample(15:20, n(), replace=T)) %>%
+    bind_rows(major_clone_table) %>%
+    bind_rows(common_ag_tab)
+  
+  simulated_samples_list[[name_of_sample]] <- sim_sample_table 
+}
+```
+
+```{r}
+for (i in seq(9, 12)){
+  name_of_sample <- paste("sample", i, sep="_")
+  
+  major_clone_table <- ag2_pool %>%
+    sample_n(15) %>%
+    mutate(nClone = sample(200:300, n(), replace=T))
+  
+  common_ag_tab <- common_ag_pool %>%
+    mutate(nClone = sample(80:120, n(), replace=T))
+  
+  sim_sample_table <- background_pool %>%
+    sample_n(60) %>%
+    mutate(nClone = sample(15:20, n(), replace=T)) %>%
+    bind_rows(major_clone_table) %>%
+    bind_rows(common_ag_tab)
+  
+  simulated_samples_list[[name_of_sample]] <- sim_sample_table 
+}
+```
+
+## Generate input for ART
+
+### Prepare FASTA files
+
+Illumina reads will be simulated using [https://pubmed.ncbi.nlm.nih.gov/22199392/](ART). The process need fasta files as an input and will yield simulated fastq files that are the main input of our pipeline.
+
+```{r}
+for(nm in names(simulated_samples_list)) {
+  
+  sim_tab <- simulated_samples_list[[nm]]
+  
+  extruded_seqs <- sim_tab %>%
+    pivot_longer(-nClone) %>%
+    uncount(nClone) %>%
+    mutate(name=paste("Contig", seq(1, n()), sep="_"))
+  
+  write.fasta(as.list(extruded_seqs$value), extruded_seqs$name, file.path(test_data_simulation_folder, paste0(nm, ".fa")))
+}
+```
+
+### Run ART
+
+```{r}
+for(nm in names(simulated_samples_list)) {
+  fa_fn <- file.path(test_data_simulation_folder, nm)
+  
+  system(paste(
+    "art_illumina -ss HS25 -p", # Paired end reads from HiSeq 2500 (125bp, 150bp)
+    "-i", paste(fa_fn, "fa", sep="."), "-f 20", # Input file and coverage
+    "-l 150 -m 200 -s 10", # 150 bp reads with mean fragments of 200, stdev 10
+    "-o", paste(fa_fn, "_", sep=""), #output prefix, add "-sam" to generate also sam file
+    sep=" "
+  ))
+}
+```
