@@ -98,7 +98,7 @@ process addPathToTable {
         tuple sample, "clones.txt" from repertoire_tables
 
     output:
-        file "tagged_clones.txt)" into tagged_repertoire_table
+        file "tagged_clones.txt" into tagged_repertoire_table
 
     """
     R --slave -e 'tb <- read.csv("clones.txt", stringsAsFactors=FALSE); tb["Sample_code"] <- ${sample}; write.csv(tb, tagged_clones.txt)'
@@ -130,7 +130,7 @@ process generateReport {
         file sample_meta from params.sample_metadata
 
     output:
-        file reperoire_report.html into final_report
+        file "${report_filename}" into final_report
 
     """
     R --slave -e 'rmarkdown::render("${report_template}", "${report_filename}", params = list(clonotype_tab=${clonotype_tab}, sample_metadata=${sample_metadata}, condition_column=${condition_column}, condition_order=${condition_order}, species=${species}'
