@@ -12,4 +12,4 @@ This is a container designed to be used as part of a Nextflow pipeline. Developm
 
 ## Test out
 
-A simulated dataset, derived from Ig sequences published by [https://pubmed.ncbi.nlm.nih.gov/31428692/](Goldstein et al.) is available in test_data/simulated_input folder.
+A simulated dataset, derived from Ig sequences published by [Goldstein et al.](https://pubmed.ncbi.nlm.nih.gov/31428692/) is available in test_data/simulated_input folder.
