@@ -11,7 +11,8 @@ params:
   report_author: "Anonymus"
   tagged_repertoire: "../test_data/merged_repertoire.csv"
   sample_metadata: "../test_data/samples_meta.csv"
-  table_path: "../test_repertoire_summary.xlsx.csv"
+  table_path: "test_repertoire_summary.xlsx"
+  figure_path: "figures"
   condition_column: "Label"
   condition_order: null
   species: "musmus"
@@ -170,6 +171,7 @@ p <- clonotype_summary %>%
     ) +
     labs(title="Proportion of Ig chains in samples", x="", y="Proportion")
 
+ggsave(file.path(params$figure_path, "fig1.pdg"), plot=p, width=6.4, height=3.2, units="in")
 show_fig(p)
 ```
 

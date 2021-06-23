@@ -130,20 +130,24 @@ process generateReport {
         val condition_column from params.condition_column
         val condition_order from params.condition_order
         val species from params.species
-        file clonotype_tab from tagged_repertoire
+        val species from params.species
+        val figure_path from params.figure_path
         file sample_meta from params.sample_metadata
+        file clonotype_tab from tagged_repertoire
 
     output:
         file "${report_filename}" into final_report
 
     """
     R --slave -e ' \
-      rmarkdown::render("${report_template}", "${report_filename}", \
+      rmarkdown::render("${report_template}", output_file="${report_filename}", \
         params = list( \
           clonotype_tab="${clonotype_tab}", \
           sample_metadata="${sample_meta}", \
           condition_column="${condition_column}", \
           condition_order="${condition_order}", \
+          table_path="${table_path}", \
+          figure_path="${figure_path}", \
           species="${species}" \
         ) \
       ) \
