@@ -56,7 +56,7 @@ process reconstructBCRepertoireMiXCR {
         tuple sample, "${sample}.clns" into repertoire_clns
 
     """
-    /home/rstudio/mixcr/mixcr-3.0.13/mixcr analyze shotgun\
+    /usr/share/mixcr/mixcr-3.0.13/mixcr analyze shotgun\
     --only-productive\
     --starting-material rna\
     --receptor-type bcr\
@@ -83,7 +83,7 @@ process mergeChainedMiXCR {
         tuple sample, "${sample}_clones.txt" into repertoire_tables
 
     """
-    /home/rstudio/mixcr/mixcr-3.0.13/mixcr exportClones clones.clns ${sample}_clones.txt
+    /usr/share/mixcr/mixcr-3.0.13/mixcr exportClones clones.clns ${sample}_clones.txt
     """
 } 
 
@@ -140,11 +140,11 @@ process generateReport {
     R --slave -e ' \
       rmarkdown::render("${report_template}", "${report_filename}", \
         params = list( \
-          clonotype_tab=${clonotype_tab}, \
-          sample_metadata=${sample_meta}, \
-          condition_column=${condition_column}, \
-          condition_order=${condition_order}, \
-          species=${species} \
+          clonotype_tab="${clonotype_tab}", \
+          sample_metadata="${sample_meta}", \
+          condition_column="${condition_column}", \
+          condition_order="${condition_order}", \
+          species="${species}" \
         ) \
       ) \
     '
