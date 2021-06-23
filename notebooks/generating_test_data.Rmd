@@ -147,7 +147,7 @@ for(nm in names(simulated_samples_list)) {
   
   system(paste(
     "art_illumina -ss HS25 -p", # Paired end reads from HiSeq 2500 (125bp, 150bp)
-    "-i", paste(fa_fn, "fa", sep="."), "-f 10", # Input file and coverage
+    "-i", paste(fa_fn, "fa", sep="."), "-f 20", # Input file and coverage
     "-l 150 -m 200 -s 10", # 150 bp reads with mean fragments of 200, stdev 10
     "-o", paste(fa_fn, "_", sep=""), #output prefix, add "-sam" to generate also sam file
     sep=" "
