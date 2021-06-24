@@ -171,7 +171,7 @@ p <- clonotype_summary %>%
     ) +
     labs(title="Proportion of Ig chains in samples", x="", y="Proportion")
 
-ggsave(file.path(params$figure_path, "fig1.pdg"), plot=p, width=6.4, height=3.2, units="in")
+ggsave(file.path(params$figure_path, "fig1.pdf"), plot=p, width=6.4, height=3.2, units="in")
 show_fig(p)
 ```
 
@@ -186,6 +186,7 @@ p <- clonotype_summary %>%
     ) +
     labs(title="Number of individual clonotypes", x="", y="Clonotype")
 
+ggsave(file.path(params$figure_path, "fig2.pdf"), plot=p, width=6.4, height=3.2, units="in")
 show_fig(p)
 ```
 
@@ -374,6 +375,7 @@ p <- differential_clono_tab %>%
     x="log2(FoldChange)", y="-log10(p)", color=""
   )
 
+ggsave(file.path(params$figure_path, "fig3.pdf"), plot=p, width=6.4, height=3.2, units="in")
 show_fig(p)
 ```
 
@@ -430,6 +432,7 @@ p <- imm_overlap_jc %>%
       x="Dimension 1", y="Dimension 2", color=""
     )
 
+ggsave(file.path(params$figure_path, "fig4.pdf"), plot=p, width=6.4, height=3.2, units="in")
 show_fig(p)
 ```
 
@@ -461,6 +464,7 @@ p <- imm_overlap_mrs %>%
       x="Dimension 1", y="Dimension 2", color=""
     )
 
+ggsave(file.path(params$figure_path, "fig5.pdf"), plot=p, width=6.4, height=3.2, units="in")
 show_fig(p)
 ```
 
@@ -492,6 +496,12 @@ display_rep_diversity <- function(intab, method, column, title, n_conditions=N_C
       scale_color_manual(values=rev(color_names[1:n_conditions])) +
       theme_bw() +
       labs(title=title, x="", y="Chao1 index", color="")
+  
+  title %>%
+    gsub(" ", "_", .) %>%
+    paste("pdf", sep=".") %>%
+    file.path(params$figure_path, .) %>%
+    ggsave(plot=p, width=6.4, height=3.2, units="in")
   
   show_fig(p)
 }
@@ -704,20 +714,26 @@ overall_gene_usage_tab %>%
 ```
 
 ```{r message=FALSE, warning=FALSE}
-overall_gene_usage_tab %>%
+p <- overall_gene_usage_tab %>%
   geneUsageAnalysis(.method = "js+pca+kmeans", .verbose = F) %>%
   vis(.by="Condition", .meta = immdata$meta, .plot = "clust") +
   scale_fill_manual(values=rev(color_names[1:N_CONDITION])) +
   scale_color_manual(values=rev(color_names[1:N_CONDITION])) +
   ggtitle("K-means clustering after PCA of JS scores")
+
+ggsave(file.path(params$figure_path, "fig6.pdf"), plot=p, width=6.4, height=3.2, units="in")
+p
 ```
 
 ```{r message=FALSE, warning=FALSE}
-overall_gene_usage_tab %>%
+p <- overall_gene_usage_tab %>%
   geneUsageAnalysis("js+hclust", .verbose = F) %>%
   vis(.plot = "clust") +
     scale_color_manual(values=rev(color_names[1:N_CONDITION])) +
     ggtitle("Hierarchical clustering of samples based on JS scores")
+
+ggsave(file.path(params$figure_path, "fig7.pdf"), plot=p, width=6.4, height=3.2, units="in")
+p
 ```
 
 ## Convergence
@@ -761,6 +777,7 @@ p <- clonotype_freq_tab %>%
       title="Convergence as percent of CDR3 regions in sample having more than 1 CDR3.nt variants",
       x="", y="Percent of CDR3 convergent")
 
+ggsave(file.path(params$figure_path, "fig8.pdf"), plot=p, width=6.4, height=3.2, units="in")
 show_fig(p)
 ```
 

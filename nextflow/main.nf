@@ -114,6 +114,14 @@ process addPathToTable {
  *        Generate report using an Rmd template
  */
 
+Channel
+    .fromPath(params.sample_metadata)
+    .set{ sample_metafile }
+
+Channel
+    .fromPath(params.report_template, followLinks: false)
+    .set{ report_template }
+
 tagged_repertoire_table
     .collectFile(name: 'merged_repertoire.txt', keepHeader: true, newLine: true)
     .set{ tagged_repertoire }
@@ -123,16 +131,16 @@ process generateReport {
     publishDir params.report_folder, pattern: '*.html', mode: 'copy'
 
     input:
-        val report_template from params.report_template
-        val report_filename from params.report_filename
         val report_title from params.report_title
         val report_author from params.report_author
         val condition_column from params.condition_column
         val condition_order from params.condition_order
         val species from params.species
-        val species from params.species
+        val table_path from params.table_path
         val figure_path from params.figure_path
-        file sample_meta from params.sample_metadata
+        val report_filename from params.report_filename
+        file "template.Rmd" from report_template
+        file "sample_meta.csv" from sample_metafile
         file clonotype_tab from tagged_repertoire
 
     output:
@@ -140,10 +148,14 @@ process generateReport {
 
     """
     R --slave -e ' \
-      rmarkdown::render("${report_template}", output_file="${report_filename}", \
+      krd <- getwd(); \
+      print(krd); \
+      print(head(readLines(file.path(krd, "template.Rmd")))); \
+      template_file <- file.path(krd, "template.Rmd"); \
+      rmarkdown::render(template_file, output_file="${report_filename}", \
         params = list( \
-          clonotype_tab="${clonotype_tab}", \
-          sample_metadata="${sample_meta}", \
+          tagged_repertoire="${clonotype_tab}", \
+          sample_metadata="sample_meta.csv", \
           condition_column="${condition_column}", \
           condition_order="${condition_order}", \
           table_path="${table_path}", \
