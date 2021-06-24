@@ -102,9 +102,9 @@ process addPathToTable {
 
     """
     R --slave -e ' \
-      tb <- read.table("clones.txt", sep="\\t", stringsAsFactors=FALSE); \
+      tb <- read.csv("clones.txt", sep="\\t", stringsAsFactors=FALSE); \
       tb["Sample_code"] <- "${sample}"; \
-      write.csv(tb, "tagged_clones.txt") \
+      write.csv(tb, "tagged_clones.txt", row.names=FALSE) \
     '
     """
 } 
@@ -147,11 +147,12 @@ process generateReport {
         file "${report_filename}" into final_report
 
     """
+    cp template.Rmd clean_template.Rmd
     R --slave -e ' \
       krd <- getwd(); \
       print(krd); \
       print(head(readLines(file.path(krd, "template.Rmd")))); \
-      template_file <- file.path(krd, "template.Rmd"); \
+      template_file <- file.path(krd, "clean_template.Rmd"); \
       rmarkdown::render(template_file, output_file="${report_filename}", \
         params = list( \
           tagged_repertoire="${clonotype_tab}", \

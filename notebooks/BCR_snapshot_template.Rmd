@@ -109,8 +109,7 @@ unlink(repertoire_folder, recursive=TRUE, force=TRUE)
 raw_metadata <- read.csv(params$sample_metadata)
 raw_metadata$Condition <- raw_metadata[[params$condition_column]]
 if(!is.null(params$condition_order)) {
-  condition_order <- raw_metadata$Condition  %>%
-    params$condition_order %>%
+  condition_order <- params$condition_order %>%
     strsplit(",") %>%
     unlist()
   raw_metadata$Condition <- factor(raw_metadata$Condition, levels=condition_order)
