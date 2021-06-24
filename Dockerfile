@@ -53,5 +53,7 @@ RUN cd /tmp &&\
 ENV PATH="/usr/local/bin:/usr/share/mixcr/mixcr-3.0.13:${PATH}"
 
 ADD ./ /home/rstudio/repo_files
+ADD ./.Rprofile /home/rstudio/.Rprofile
+ENV R_PROFILE_USER /home/rstudio/.Rprofile
 
 CMD ["/init"]
