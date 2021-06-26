@@ -149,11 +149,7 @@ process generateReport {
     """
     cp template.Rmd clean_template.Rmd
     R --slave -e ' \
-      krd <- getwd(); \
-      print(krd); \
-      print(head(readLines(file.path(krd, "template.Rmd")))); \
-      template_file <- file.path(krd, "clean_template.Rmd"); \
-      rmarkdown::render(template_file, output_file="${report_filename}", \
+      rmarkdown::render("clean_template.Rmd", output_file="${report_filename}", \
         params = list( \
           tagged_repertoire="${clonotype_tab}", \
           sample_metadata="sample_meta.csv", \
