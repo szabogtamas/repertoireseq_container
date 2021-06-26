@@ -266,25 +266,37 @@ find_top_abundant_clones <- function(in_tab, chain_name=NULL) {
 }
 
 show_top_clone_proportions <- function(in_tab, top_clones, plot_title, chain_name=NULL) {
-  in_tab %>%
-    filter(if(is.null(chain_name)) TRUE else receptorChain == !!chain_name) %>%
-    filter(CDR3.nt %in% top_clones$CDR3.nt) %>%
-    select(Proportion, CDR3.aa, Condition) %>%
-    mutate(
-      CDR3.aa = factor(CDR3.aa, levels=unique(top_clones$CDR3.aa))
-    ) %>%
-    plot_ly(
-      x = ~CDR3.aa, y = ~Proportion, color = ~Condition, type = "box",
-      boxpoints = FALSE, width=1200, height=800,
-      colors=rev(color_names[1:N_CONDITION])
-    ) %>%
-    layout(
-      xaxis = list(title="", tickangle = 30, tickfont=list(size=12)),
-      yaxis = list(title="Proportion", tickfont=list(size=12)),
-      boxmode = "group",
-      legend = list(orientation="h", xanchor="center", x=0.5),
-      title = plot_title
-    )
+  if(is.null(chain_name)) {
+    sub_tab <- in_tab
+  } else {
+    sub_tab <- in_tab %>%
+      filter(receptorChain == !!chain_name)
+  }
+  
+  if(nrow(sub_tab) > 0) {
+    in_tab %>%
+      filter(if(is.null(chain_name)) TRUE else receptorChain == !!chain_name) %>%
+      filter(CDR3.nt %in% top_clones$CDR3.nt) %>%
+      select(Proportion, CDR3.aa, Condition) %>%
+      mutate(
+        CDR3.aa = factor(CDR3.aa, levels=unique(top_clones$CDR3.aa))
+      ) %>%
+      plot_ly(
+        x = ~CDR3.aa, y = ~Proportion, color = ~Condition, type = "box",
+        boxpoints = FALSE, width=1200, height=800,
+        colors=rev(color_names[1:N_CONDITION])
+      ) %>%
+      layout(
+        xaxis = list(title="", tickangle = 30, tickfont=list(size=12)),
+        yaxis = list(title="Proportion", tickfont=list(size=12)),
+        boxmode = "group",
+        legend = list(orientation="h", xanchor="center", x=0.5),
+        title = plot_title
+      )
+  } else {
+    p <- ggplot() + theme_void()
+    p
+  }
 }
 
 display_top_abundant_clonotypes <- function(in_tab, title, chain_name=NULL) {
