@@ -19,6 +19,10 @@ docker run -it -v $PWD:/home/rstudio/local_files \
   szabogtamas/repertoireseq_container \
   nextflow run /home/rstudio/repo_files/nextflow/main.nf \
   --input_folder /home/rstudio/local_files/input_data \
+  --clonotype_dir /home/rstudio/local_files/report/reconstruction_logs \
+  --table_path /home/rstudio/local_files/report/repertoire_summary.xlsx \
+  --figure_path /home/rstudio/local_files/report/figures \
+  --report_folder /home/rstudio/local_files/report \
   --report_filename "my_test_repertoire_report.html" \
   --report_title "A test report" \
   --report_author "Me"
