@@ -71,6 +71,8 @@ show_fig <- function(p, interaction=ALLOW_INTERACTION) {
   }
 }
 
+if(!dir.exists(params$figure_path)) dir.create(params$figure_path)
+
 color_names <- pal_npg()(9)
 ```
 
@@ -199,14 +201,26 @@ vis(exp_cnt) +
 
 ```{r message=FALSE, warning=FALSE}
 display_clonotype_proportion_distribution <- function(in_tab, plot_title, chain_name=NULL, n_conditions=N_CONDITION) {
-  p <- in_tab %>%
-    filter(if(is.null(chain_name)) TRUE else receptorChain == !!chain_name) %>%
+  
+  if(is.null(chain_name)) {
+    sub_tab <- in_tab
+  } else {
+    sub_tab <- in_tab %>%
+      filter(receptorChain == !!chain_name)
+  }
+  
+  if(nrow(sub_tab) > 0) {
+  p <- sub_tab %>%
     ggplot(aes(x=Proportion)) +
       geom_density(aes(color=Condition)) +
       scale_x_log10() +
       scale_color_manual(values=rev(color_names[1:n_conditions])) +
       theme_bw() +
       labs(title=plot_title, x="Proportion", y="Density")
+    
+  } else {
+    p <- ggplot() + theme_void()
+  }
   
   show_fig(p)
 }
