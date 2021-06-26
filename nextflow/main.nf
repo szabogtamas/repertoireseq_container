@@ -119,7 +119,7 @@ Channel
     .set{ sample_metafile }
 
 Channel
-    .fromPath(params.report_template, followLinks: false)
+    .fromPath(params.report_template)
     .set{ report_template }
 
 tagged_repertoire_table
