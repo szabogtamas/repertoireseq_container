@@ -252,17 +252,27 @@ display_clonotype_proportion_distribution(
 
 ```{r message=FALSE, warning=FALSE}
 find_top_abundant_clones <- function(in_tab, chain_name=NULL) {
-  in_tab %>%
-    filter(if(is.null(chain_name)) TRUE else receptorChain == !!chain_name) %>%
-    group_by(Condition, CDR3.nt) %>%
-    mutate(Proportion = mean(Proportion)) %>%
-    ungroup() %>%
-    arrange(desc(Proportion)) %>%
-    group_by(Condition) %>%
-    group_split() %>%
-    map(head, 30) %>%
-    bind_rows() %>%
-    distinct(CDR3.aa, CDR3.nt)
+  if(is.null(chain_name)) {
+    sub_tab <- in_tab
+  } else {
+    sub_tab <- in_tab %>%
+      filter(receptorChain == !!chain_name)
+  }
+  
+  if(nrow(sub_tab) > 0) {
+    sub_tab %>%
+      group_by(Condition, CDR3.nt) %>%
+      mutate(Proportion = mean(Proportion)) %>%
+      ungroup() %>%
+      arrange(desc(Proportion)) %>%
+      group_by(Condition) %>%
+      group_split() %>%
+      map(head, 30) %>%
+      bind_rows() %>%
+      distinct(CDR3.aa, CDR3.nt)
+  } else {
+    sub_tab
+  }
 }
 
 show_top_clone_proportions <- function(in_tab, top_clones, plot_title, chain_name=NULL) {
@@ -274,8 +284,7 @@ show_top_clone_proportions <- function(in_tab, top_clones, plot_title, chain_nam
   }
   
   if(nrow(sub_tab) > 0) {
-    in_tab %>%
-      filter(if(is.null(chain_name)) TRUE else receptorChain == !!chain_name) %>%
+    sub_tab %>%
       filter(CDR3.nt %in% top_clones$CDR3.nt) %>%
       select(Proportion, CDR3.aa, Condition) %>%
       mutate(
