@@ -145,6 +145,7 @@ process generateReport {
         file clonotype_tab from tagged_repertoire
 
     output:
+        file "${table_path}" into summary_tab
         file "${report_filename}" into final_report
         file "${report_filename.replaceAll(/html$/, 'Rmd')}" into report_source
 
