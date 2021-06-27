@@ -16,7 +16,7 @@ If the measured data is in the `input_data` folder of the current directory (alt
 
 ```
 docker run -it -v $PWD:/home/rstudio/local_files \
-  szabogtamas/repertoireseq_container \
+  szabogtamas/repertoireseq \
   nextflow run /home/rstudio/repo_files/nextflow/main.nf \
   --input_folder /home/rstudio/local_files/input_data \
   --clonotype_dir /home/rstudio/local_files/report/reconstruction_logs \
