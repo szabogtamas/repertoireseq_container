@@ -15,6 +15,7 @@ params:
   figure_path: "figures"
   condition_column: "Label"
   condition_order: ""
+  figformat: "pdf"
   species: "musmus"
 ---
 
@@ -69,6 +70,10 @@ show_fig <- function(p, interaction=ALLOW_INTERACTION) {
   } else {
     p
   }
+}
+
+get_custom_figname <- function(suffix, seed="figure_", ext=params$figformat) {
+  paste(seed, suffix, ".", ext, sep="")
 }
 
 if(!dir.exists(params$figure_path)) dir.create(params$figure_path)
@@ -176,7 +181,7 @@ p <- clonotype_summary %>%
     ) +
     labs(title="Proportion of Ig chains in samples", x="", y="Proportion")
 
-ggsave(file.path(params$figure_path, "fig1.pdf"), plot=p, width=6.4, height=3.2, units="in")
+ggsave(file.path(params$figure_path, get_custom_figname(1)), plot=p, width=6.4, height=3.2, units="in")
 show_fig(p)
 ```
 
@@ -191,7 +196,7 @@ p <- clonotype_summary %>%
     ) +
     labs(title="Number of individual clonotypes", x="", y="Clonotype")
 
-ggsave(file.path(params$figure_path, "fig2.pdf"), plot=p, width=6.4, height=3.2, units="in")
+ggsave(file.path(params$figure_path, get_custom_figname(2)), plot=p, width=6.4, height=3.2, units="in")
 show_fig(p)
 ```
 
@@ -413,7 +418,7 @@ p <- differential_clono_tab %>%
     x="log2(FoldChange)", y="-log10(p)", color=""
   )
 
-ggsave(file.path(params$figure_path, "fig3.pdf"), plot=p, width=6.4, height=3.2, units="in")
+ggsave(file.path(params$figure_path, get_custom_figname(3)), plot=p, width=6.4, height=3.2, units="in")
 show_fig(p)
 ```
 
@@ -470,7 +475,7 @@ p <- imm_overlap_jc %>%
       x="Dimension 1", y="Dimension 2", color=""
     )
 
-ggsave(file.path(params$figure_path, "fig4.pdf"), plot=p, width=6.4, height=3.2, units="in")
+ggsave(file.path(params$figure_path, get_custom_figname(4)), plot=p, width=6.4, height=3.2, units="in")
 show_fig(p)
 ```
 
@@ -502,7 +507,7 @@ p <- imm_overlap_mrs %>%
       x="Dimension 1", y="Dimension 2", color=""
     )
 
-ggsave(file.path(params$figure_path, "fig5.pdf"), plot=p, width=6.4, height=3.2, units="in")
+ggsave(file.path(params$figure_path, get_custom_figname(5)), plot=p, width=6.4, height=3.2, units="in")
 show_fig(p)
 ```
 
@@ -759,7 +764,7 @@ p <- overall_gene_usage_tab %>%
   scale_color_manual(values=rev(color_names[1:N_CONDITION])) +
   ggtitle("K-means clustering after PCA of JS scores")
 
-ggsave(file.path(params$figure_path, "fig6.pdf"), plot=p, width=6.4, height=3.2, units="in")
+ggsave(file.path(params$figure_path, get_custom_figname(6)), plot=p, width=6.4, height=3.2, units="in")
 p
 ```
 
@@ -770,7 +775,7 @@ p <- overall_gene_usage_tab %>%
     scale_color_manual(values=rev(color_names[1:N_CONDITION])) +
     ggtitle("Hierarchical clustering of samples based on JS scores")
 
-ggsave(file.path(params$figure_path, "fig7.pdf"), plot=p, width=6.4, height=3.2, units="in")
+ggsave(file.path(params$figure_path, get_custom_figname(7)), plot=p, width=6.4, height=3.2, units="in")
 p
 ```
 
@@ -815,7 +820,7 @@ p <- clonotype_freq_tab %>%
       title="Convergence as percent of CDR3 regions in sample having more than 1 CDR3.nt variants",
       x="", y="Percent of CDR3 convergent")
 
-ggsave(file.path(params$figure_path, "fig8.pdf"), plot=p, width=6.4, height=3.2, units="in")
+ggsave(file.path(params$figure_path, get_custom_figname(8)), plot=p, width=6.4, height=3.2, units="in")
 show_fig(p)
 ```
 
