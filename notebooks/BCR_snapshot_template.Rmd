@@ -9,7 +9,7 @@ output:
 params:
   report_title: "B-cell repertoire analysis template"
   report_author: "Anonymus"
-  tagged_repertoire: "/home/rstudio/local_files/report/reconstruction_logs"
+  tagged_repertoire: "/home/rstudio/local_files/report/merged_repertoire.txt"
   sample_metadata: "../test_data/samples_meta.csv"
   table_path: "test_repertoire_summary.xlsx"
   figure_path: "figures"
