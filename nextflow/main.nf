@@ -136,6 +136,7 @@ process generateReport {
         val condition_column from params.condition_column
         val condition_order from params.condition_order
         val species from params.species
+        val figformat from params.figformat
         val table_path from params.table_path
         val figure_path from params.figure_path
         val report_filename from params.report_filename
@@ -145,13 +146,13 @@ process generateReport {
 
     output:
         file "${report_filename}" into final_report
-        file "${report_filename.replaceAll('\html$', 'Rmd')}" into report_source
+        file "${report_filename.replaceAll(/html$/, 'Rmd')}" into report_source
 
     """
-    cp template.Rmd "${report_filename.replaceAll('\html$', 'Rmd')}"
+    cp template.Rmd "${report_filename.replaceAll(/html$/, 'Rmd')}"
     R --slave -e ' \
       rmarkdown::render( \
-        "${report_filename.replaceAll('\html$', 'Rmd')}", \
+        "${report_filename.replaceAll(/html$/, 'Rmd')}", \
         output_file="${report_filename}", \
         params = list( \
           tagged_repertoire="${clonotype_tab}", \
