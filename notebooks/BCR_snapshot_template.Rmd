@@ -525,10 +525,13 @@ display_rep_diversity <- function(intab, method, column, title, n_conditions=N_C
   dt_tab <- repDiversity(intab, method, column)
   
   if (method == "chao1") {
+    ylab_val <- "Chao1 index"
     dt_tab <- dt_tab %>%
       data.frame() %>%
       tibble::rownames_to_column("Sample") %>%
       rename(Value=Estimator)
+  } else {
+    ylab_val <- "Diversity"
   }
   
   p <- dt_tab %>%
@@ -538,7 +541,7 @@ display_rep_diversity <- function(intab, method, column, title, n_conditions=N_C
       geom_point(size=2, alpha=0.8, position = position_jitterdodge()) +
       scale_color_manual(values=rev(color_names[1:n_conditions])) +
       theme_bw() +
-      labs(title=title, x="", y="Chao1 index", color="")
+      labs(title=title, x="", y=ylab_val, color="")
   
   title %>%
     gsub(" ", "_", .) %>%
@@ -817,7 +820,7 @@ p <- clonotype_freq_tab %>%
     scale_color_manual(values=rev(color_names[1:N_CONDITION])) +
     theme_bw() +
     labs(
-      title="Convergence as percent  in sample of/nCDR3 regions having more than nt variants",
+      title="Convergence as percent  in sample of\nCDR3 regions having multiple nt variants",
       x="", y="Percent of CDR3 convergent")
 
 ggsave(file.path(params$figure_path, get_custom_figname(8)), plot=p+theme(plot.title=element_text(size=14)), width=6.4, height=3.2, units="in")
