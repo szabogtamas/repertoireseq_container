@@ -542,7 +542,7 @@ display_rep_diversity <- function(intab, method, column, title, n_conditions=N_C
   
   title %>%
     gsub(" ", "_", .) %>%
-    paste("pdf", sep=".") %>%
+    paste(params$figformat, sep=".") %>%
     file.path(params$figure_path, .) %>%
     ggsave(plot=p, width=6.4, height=3.2, units="in")
   
@@ -817,10 +817,10 @@ p <- clonotype_freq_tab %>%
     scale_color_manual(values=rev(color_names[1:N_CONDITION])) +
     theme_bw() +
     labs(
-      title="Convergence as percent of CDR3 regions in sample having more than 1 CDR3.nt variants",
+      title="Convergence as percent  in sample of/nCDR3 regions having more than nt variants",
       x="", y="Percent of CDR3 convergent")
 
-ggsave(file.path(params$figure_path, get_custom_figname(8)), plot=p, width=6.4, height=3.2, units="in")
+ggsave(file.path(params$figure_path, get_custom_figname(8)), plot=p+theme(plot.title=element_text(size=14)), width=6.4, height=3.2, units="in")
 show_fig(p)
 ```
 
