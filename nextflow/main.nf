@@ -128,7 +128,7 @@ tagged_repertoire_table
 
 process generateReport {
 
-    publishDir params.report_folder, pattern: '*.(Rmd|html|txt)', mode: 'copy'
+    publishDir params.report_folder, mode: 'copy'
 
     input:
         val report_title from params.report_title
