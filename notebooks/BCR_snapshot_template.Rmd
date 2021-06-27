@@ -9,7 +9,7 @@ output:
 params:
   report_title: "B-cell repertoire analysis template"
   report_author: "Anonymus"
-  tagged_repertoire: "../test_data/merged_repertoire.csv"
+  tagged_repertoire: "/home/rstudio/local_files/report/reconstruction_logs"
   sample_metadata: "../test_data/samples_meta.csv"
   table_path: "test_repertoire_summary.xlsx"
   figure_path: "figures"
@@ -115,7 +115,7 @@ if(!is.null(params$condition_order)) {
     strsplit(",") %>%
     unlist()
 }
-if(length(condition_order) > 0) {
+if(length(condition_order) == length(unique(raw_metadata$Condition))) {
   raw_metadata$Condition <- factor(raw_metadata$Condition, levels=condition_order)
 } else {
   raw_metadata$Condition <- factor(raw_metadata$Condition)
