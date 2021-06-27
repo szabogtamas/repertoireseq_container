@@ -128,7 +128,7 @@ tagged_repertoire_table
 
 process generateReport {
 
-    publishDir params.report_folder, pattern: '*.(Rmd|html)', mode: 'copy'
+    publishDir params.report_folder, pattern: '*.(Rmd|html|txt)', mode: 'copy'
 
     input:
         val report_title from params.report_title
@@ -145,13 +145,13 @@ process generateReport {
 
     output:
         file "${report_filename}" into final_report
-        file "${report_filename.baseName}.Rmd" into report_source
+        file "${report_filename.replaceAll('\html$', 'Rmd')}" into report_source
 
     """
-    cp template.Rmd "${report_filename.baseName}.Rmd"
+    cp template.Rmd "${report_filename.replaceAll('\html$', 'Rmd')}"
     R --slave -e ' \
       rmarkdown::render( \
-        "${report_filename.baseName}.Rmd", \
+        "${report_filename.replaceAll('\html$', 'Rmd')}", \
         output_file="${report_filename}", \
         params = list( \
           tagged_repertoire="${clonotype_tab}", \
@@ -160,6 +160,7 @@ process generateReport {
           condition_order="${condition_order}", \
           table_path="${table_path}", \
           figure_path="${figure_path}", \
+          figformat="${figformat}", \
           species="${species}" \
         ) \
       ) \
