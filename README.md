@@ -25,6 +25,8 @@ docker run -it -v $PWD:/home/rstudio/local_files \
   --report_folder /home/rstudio/local_files/report \
   --report_filename "my_test_repertoire_report.html" \
   --report_title "A test report" \
+  --report_author "Label" \
+  --condition_order "Control,Reacting,Anergic" \
   --report_author "Me"
 ```
 
