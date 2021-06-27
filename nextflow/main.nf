@@ -34,7 +34,6 @@ process rnaBulkTrimmomaticPE {
     ${sample}_trim_2.fastq ${sample}_reverse_unpaired.fastq\
     ILLUMINACLIP:$adapterFileIllumina:2:30:10:8:keepBothReads LEADING:3 TRAILING:3 MINLEN:36\
     -threads $manycpu
-
     """
 } 
 
