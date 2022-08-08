@@ -448,7 +448,7 @@ show_top_clone_proportions(
 ```{r message=FALSE, warning=FALSE}
 imm_overlap_pb <- repOverlap(immdata$data, .method = "public", .verbose = F)
 vis(imm_overlap_pb) +
-  ggtitle("Overlap of repertoire based on publicity index")
+  ggtitle("Overlap of repertoires based on publicity index")
 ```
 
 ### Jaccard's index
@@ -456,7 +456,7 @@ vis(imm_overlap_pb) +
 ```{r message=FALSE, warning=FALSE}
 imm_overlap_jc <- repOverlap(immdata$data, .method = "jaccard", .verbose = F)
 vis(imm_overlap_jc) +
-  ggtitle("Overlap of repertoire based on Jaccard's index")
+  ggtitle("Overlap of repertoires based on Jaccard's index")
 ```
 
 ```{r message=FALSE, warning=FALSE}
@@ -488,7 +488,7 @@ repOverlapAnalysis(imm_overlap_jc, "mds+kmeans") %>% vis()
 ```{r message=FALSE, warning=FALSE}
 imm_overlap_mrs <- repOverlap(immdata$data, .method = "morisita", .verbose = F)
 vis(imm_overlap_mrs) +
-  ggtitle("Overlap of reprtoire based on the Morisita index")
+  ggtitle("Overlap of reprtoires based on the Morisita index")
 ```
 
 ```{r message=FALSE, warning=FALSE}
